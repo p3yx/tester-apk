@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GitHub Manager</title>
+<style>
+  body {
+    background: #121212;
+    color: #f0f0f0;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, p {
+    text-align: center;
+    margin: 0;
+  }
+  h1 {
+    color: #00e676;
+    margin-bottom: 8px;
+  }
+  p {
+    color: #bbb;
+    margin-bottom: 24px;
+  }
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .box {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 255, 196, 0.1);
+    width: 360px;
+  }
+  label {
+    margin-top: 10px;
+    margin-bottom: 4px;
+    display: block;
+    font-size: 14px;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #262626;
+    color: #eee;
+    font-size: 14px;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+  }
+  .btn {
+    background: #00e6b8;
+    color: #000;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s ease;
+    display: inline-block;
+    margin-top: 6px;
+  }
+  .btn:hover {
+    background: #00bfa5;
+  }
+  .loading {
+    display: none;
+    text-align: center;
+    color: #00ffc4;
+    margin-top: 12px;
+  }
+  .preview {
+    white-space: pre-wrap;
+    background: #1e1e1e;
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 12px;
+    overflow: auto;
+    max-height: 300px;
+    font-size: 13px;
+    display: none;
+  }
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    z-index: 999;
+    font-size: 14px;
+  }
+  .success {
+    background-color: #28a745;
+    color: white;
+  }
+  .error {
+    background-color: #dc3545;
+    color: white;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    padding-top: 60px;
+  }
+  .modal-content {
+    background-color: #1f1f1f;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 450px;
+    color: white;
+  }
+  .close {
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+  }
+  .close:hover {
+    color: #fff;
+  }
+  #editBox {
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <h1>GitHub Manager</h1>
+  <p>Kelola file GitHub langsung dari browser</p>
+  <div class="container">
+    <!-- Box Token + Buat Folder -->
+    <div class="box">
+      <div class="form-group">
+        <label for="token">GitHub Token</label>
+        <input type="text" id="token" placeholder="Masukkan token GitHub">
+        <button class="btn" style="margin-top:10px;" onclick="saveToken()">Simpan Token</button>
+      </div>
+      <label>Repo (username/repo)</label>
+      <input type="text" id="repo" />
+      <label>Branch</label>
+      <input type="text" id="branch" value="main" />
+      <label>Folder Tujuan (optional)</label>
+      <input type="text" id="folderPath" placeholder="folder/subfolder" />
+      <input type="text" id="newFolderName" placeholder="Nama folder baru" />
+      <button class="btn" onclick="createFolder()">Buat Folder</button>
+    </div>
+
+    <!-- Box File Manager -->
+    <div class="box">
+      <h2>File Manager</h2>
+      <label>Pilih File</label>
+      <select id="fileList">
+        <option value="">-- Pilih file --</option>
+      </select>
+      <button class="btn" onclick="previewFile()">Preview</button>
+      <div id="filePreview" class="preview"></div>
+      <label>Upload File</label>
+      <input type="file" id="fileUpload" multiple />
+      <button class="btn" onclick="listFiles()">List File</button>
+      <button class="btn" onclick="uploadFiles()">Upload</button>
+      <button class="btn" onclick="editFile()">Edit</button>
+      <button class="btn" onclick="deleteFile()">Hapus</button>
+      <button class="btn" onclick="openRenameModal()">Rename</button>
+    </div>
+
+    <!-- Box Edit File -->
+    <div class="box" id="editBox">
+      <h2>Edit File</h2>
+      <label>Path</label>
+      <input type="text" id="filePath" readonly />
+      <label>Isi File</label>
+      <textarea id="fileContent" rows="10"></textarea>
+      <button class="btn" onclick="saveFile()">Simpan</button>
+      <button class="btn" onclick="cancelEdit()">Batal</button>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">Memproses...</div>
+
+  <!-- Modal Rename -->
+  <div id="renameModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeRenameModal()">&times;</span>
+      <h2>Ganti Nama File</h2>
+      <input type="text" id="newFileName" placeholder="Masukkan nama baru" />
+      <button class="btn" onclick="confirmRename()">Ganti Nama</button>
+    </div>
+  </div>
+
+  <script>
+    const GITHUB_API = "https://api.github.com";
+    const tokenInput = document.getElementById("token");
+    let currentRenamePath = "";
+
+    window.onload = () => {
+      const savedToken = localStorage.getItem("github_token");
+      if (savedToken) tokenInput.value = savedToken;
+    };
+
+    function getVal(id) {
+      return document.getElementById(id).value.trim();
+    }
+
+    function showToast(msg, type = "success") {
+      const el = document.createElement("div");
+      el.className = `toast ${type}`;
+      el.innerText = msg;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }
+
+    function loading(state) {
+      document.getElementById("loading").style.display = state ? "block" : "none";
+    }
+
+    function saveToken() {
+      const token = tokenInput.value.trim();
+      if (!token) return showToast("Token kosong!", "error");
+      localStorage.setItem("github_token", token);
+      showToast("Token disimpan!", "success");
+    }
+
+    async function listFiles() {
+      const token = getVal("token"), repo = getVal("repo"), branch = getVal("branch"), path = getVal("folderPath");
+      if (!token || !repo) return showToast("Token dan repo wajib diisi", "error");
+      try {
+        loading(true);
+        const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}?ref=${branch}`, {
+          headers: { Authorization: `token ${token}` }
+        });
+        const data = await res.json();
+        const sel = document.getElementById("fileList");
+        sel.innerHTML = `<option value="">-- Pilih file --</option>`;
+        data.forEach(file => {
+          if (file.type === "file") {
+            const opt = document.createElement("option");
+            opt.value = file.path;
+            opt.text = file.name;
+            sel.appendChild(opt);
+          }
+        });
+        showToast("File dimuat");
+      } catch (e) {
+        showToast("Gagal: " + e.message, "error");
+      } finally {
+        loading(false);
+      }
+    }
+
+    async function previewFile() {
+      const path = getVal("fileList"), token = getVal("token"), repo = getVal("repo"), branch = getVal("branch");
+      if (!path) return;
+      try {
+        const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}?ref=${branch}`, {
+          headers: { Authorization: `token ${token}` }
+        });
+        const data = await res.json();
+        const preview = atob(data.content.replace(/\n/g, ""));
+        const previewEl = document.getElementById("filePreview");
+        previewEl.innerText = preview;
+        previewEl.style.display = "block";
+      } catch {
+        document.getElementById("filePreview").innerText = "Gagal memuat isi file";
+      }
+    }
+
+    function cancelEdit() {
+      document.getElementById("editBox").style.display = "none";
+      document.getElementById("filePath").value = '';
+      document.getElementById("fileContent").value = '';
+    }
+
+    async function editFile() {
+      const path = getVal("fileList"), token = getVal("token"), repo = getVal("repo"), branch = getVal("branch");
+      if (!path) return showToast("Pilih file terlebih dahulu", "error");
+      try {
+        loading(true);
+        const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}?ref=${branch}`, {
+          headers: { Authorization: `token ${token}` }
+        });
+        const data = await res.json();
+        const content = atob(data.content.replace(/\n/g, ""));
+        document.getElementById("editBox").style.display = "block";
+        document.getElementById("filePath").value = path;
+        document.getElementById("fileContent").value = content;
+      } catch (e) {
+        showToast("Gagal memuat file untuk diedit: " + e.message, "error");
+      } finally {
+        loading(false);
+      }
+    }
+
+    async function saveFile() {
+      const token = getVal("token"), repo = getVal("repo"), branch = getVal("branch");
+      const path = getVal("filePath"), content = getVal("fileContent");
+      if (!path || !content) return showToast("File path dan isi file wajib diisi", "error");
+      try {
+        loading(true);
+        const shaRes = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}?ref=${branch}`, {
+          headers: { Authorization: `token ${token}` }
+        });
+        const shaData = await shaRes.json();
+        const sha = shaData.sha;
+
+        const updateRes = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `token ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: "Update file content",
+            content: btoa(content),
+            sha: sha
+          })
+        });
+
+        const updateData = await updateRes.json();
+        if (updateData.content) {
+          showToast("File berhasil disimpan", "success");
+          cancelEdit();
+        }
+      } catch (e) {
+        showToast("Gagal menyimpan file: " + e.message, "error");
+      } finally {
+        loading(false);
+      }
+    }
+
+    function openRenameModal() {
+      const selectedFile = getVal("fileList");
+      if (!selectedFile) return showToast("Pilih file terlebih dahulu", "error");
+      currentRenamePath = selectedFile;
+      document.getElementById("renameModal").style.display = "block";
+    }
+
+    function closeRenameModal() {
+      document.getElementById("renameModal").style.display = "none";
+      document.getElementById("newFileName").value = "";
+    }
+
+    async function confirmRename() {
+      const newName = getVal("newFileName");
+      const token = getVal("token");
+      const repo = getVal("repo");
+      const branch = getVal("branch");
+      const path = currentRenamePath;
+
+      if (!newName) return showToast("Nama baru tidak boleh kosong", "error");
+
+      try {
+        loading(true);
+        const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}?ref=${branch}`, {
+          headers: { Authorization: `token ${token}` }
+        });
+        const data = await res.json();
+        const sha = data.sha;
+        const folder = path.includes("/") ? path.substring(0, path.lastIndexOf("/")) : "";
+        const newPath = folder ? `${folder}/${newName}` : newName;
+
+        await fetch(`${GITHUB_API}/repos/${repo}/contents/${newPath}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `token ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: "Rename file",
+            content: data.content,
+            sha: sha
+          })
+        });
+
+        await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `token ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: "Menghapus file lama setelah rename",
+            sha: sha
+          })
+        });
+
+        showToast("File berhasil diganti nama", "success");
+        listFiles();
+        closeRenameModal();
+      } catch (e) {
+        showToast("Gagal mengganti nama file: " + e.message, "error");
+      } finally {
+        loading(false);
+      }
+    }
+
+    async function createFolder() {
+      const folder = getVal("folderPath");
+      const name = getVal("newFolderName").replace(/\/+$/, '');
+      const fullPath = folder ? `${folder}/${name}` : name;
+      const token = getVal("token"), repo = getVal("repo"), branch = getVal("branch");
+      if (!name) return showToast("Nama folder wajib diisi", "error");
+
+      try {
+        loading(true);
+        await fetch(`${GITHUB_API}/repos/${repo}/contents/${fullPath}/.keep`, {
+          method: "PUT",
+          headers: {
+            Authorization: `token ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: "Create folder (dengan .keep)",
+            content: btoa("folder placeholder"),
+            branch: branch
+          })
+        });
+        showToast("Folder berhasil dibuat", "success");
+        listFiles();
+      } catch (e) {
+        showToast("Gagal membuat folder: " + e.message, "error");
+      } finally {
+        loading(false);
+      }
+    }
+    
+  </script>
+</body>
+</html>
