@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PX TOOLS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: #0f0f0f;
+      color: #fff;
+    }
+    header {
+      background: rgb(31, 28, 44);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      animation: slideDown 1s ease forwards;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+    .logo img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+    nav a:hover {
+      color: #00ffc8;
+    }
+
+    /* Description below header */
+    .header-description {
+      background: #1e1e1e;
+      padding: 20px;
+      text-align: center;
+      color: #ccc;
+      font-size: 18px;
+      border-bottom: 2px solid #00ffc8;
+    }
+
+    /* Static Image Section with Glowing Box */
+    .static-image-section {
+      position: relative;
+      height: 500px; /* Increased height */
+      margin-top: 20px;
+      background-color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 12px rgba(0,255,200,0.3);
+      border-radius: 10px;
+    }
+    .static-image-box {
+      position: relative;
+      width: 90%; /* Increased width */
+      height: 90%; /* Increased height */
+      background-image: url('/assets/images/vps.jpg'); /* Default image */
+      background-size: cover;
+      background-position: center;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,255,200,0.5);
+      animation: glowing 1.5s ease-in-out infinite alternate;
+    }
+
+    /* Animation for glowing effect */
+    @keyframes glowing {
+      0% { box-shadow: 0 0 20px rgba(0,255,200,0.5); }
+      100% { box-shadow: 0 0 30px rgba(0,255,200,1); }
+    }
+
+    .section {
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .section h2 {
+      margin-bottom: 30px;
+      color: #00ffc8;
+      font-size: 32px;
+    }
+
+    .menu-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .menu-box {
+      background: #1e1e1e;
+      width: 260px;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 0 12px rgba(0,255,200,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    /* Glow animation effect */
+    .menu-box h3 {
+      margin-bottom: 10px;
+      color: #fff;
+      text-shadow: 0 0 5px #00ffc8;
+      transition: text-shadow 0.3s;
+    }
+
+    .menu-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 20px rgba(0,255,200,0.4);
+    }
+
+    .menu-box:hover h3 {
+      text-shadow: 0 0 15px #00ffc8, 0 0 20px #00ffc8;
+    }
+
+    .menu-box img {
+      width: 60px;
+      margin-bottom: 15px;
+    }
+
+    .menu-box p {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background: #00ffc8;
+      color: #000;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    
+    .btn:hover {
+      background: #00d6a8;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+    nav a:hover {
+      color: #00ffc8;
+    }
+
+    /* Burger Icon */
+    .burger {
+      display: none;
+      cursor: pointer;
+    }
+    .burger div {
+      width: 25px;
+      height: 3px;
+      background-color: #fff;
+      margin: 5px 0;
+      transition: 0.3s;
+    }
+
+    /* Description below header */
+    .header-description {
+      background: #1e1e1e;
+      padding: 20px;
+      text-align: center;
+      color: #ccc;
+      font-size: 18px;
+      border-bottom: 2px solid #00ffc8;
+    }
+
+    /* Static Image Section with Glowing Box */
+    .static-image-section {
+      position: relative;
+      height: 500px;
+      margin-top: 20px;
+      background-color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 12px rgba(0,255,200,0.3);
+      border-radius: 10px;
+    }
+    /* Media Queries for Responsive Layout */
+    @media (max-width: 768px) {
+      nav {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        background: rgb(31, 28, 44);
+        padding: 20px;
+      }
+      nav a {
+        margin: 10px 0;
+        text-align: center;
+      }
+      .burger {
+        display: block;
+      }
+      nav.active {
+        display: flex;
+      }
+
+    footer {
+      margin-top: 40px;
+      padding: 20px;
+      background: #1a1a1a;
+      text-align: center;
+      border-radius: 10px;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    @keyframes slideDown {
+      0% {transform: translateY(-100%);}
+      100% {transform: translateY(0);}
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">
+    <img src="/assets/images/px.png" alt="PXStore Logo">
+    <h3>Peyx Devz</h3>
+  </div>
+  <nav>
+    <a href="https://whatsapp.com/channel/0029Vaj7rCF2phHIcXbV3v1N">Channel</a>
+    <a href="https://wa.me/6283151636921">Admin</a>
+  </nav>
+  <!-- Burger Icon -->
+  <div class="burger" id="burger">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</header>
+
+
+<!-- Description below the header -->
+
+
+
+<section class="section" id="layanan">
+  <h2>Tools Manager</h2>
+  <div class="menu-container">
+
+    <div class="menu-box">
+      <img src="https://img.icons8.com/?size=100&id=118553&format=png&color=000000" alt="Github">
+      <h3>Tools Github</h3>
+      <p>Tools ini berguna untuk upload file dan edit file ke repositori github</p>
+      <a href="github.html" class="btn">View</a>
+    </div>
+
+    <div class="menu-box">
+      <img src="https://img.icons8.com/?size=100&id=13682&format=png&color=000000" toscript Tunneling</h3>
+      <h3>DNS Record Mananger</h3>
+      <p>Tools ini berguna untuk recrod DNS tanpa login cloudflae</p>
+      <a href="dns.html" class="btn">View</a>
+    </div>
+
+  </div>
+</section>
+
+<footer id="kontak">
+  <p>© 2025 PeyxDev - All Rights Reserved</p>
+</footer>
+
+<script>
+  // Burger menu toggle
+  const burger = document.getElementById('burger');
+  const nav = document.querySelector('nav');
+
+  burger.addEventListener('click', () => {
+    nav.classList.toggle('active');
+  });
+  </script>
+  
+</body>
+</html>
