@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Video Downloader</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #00ffae;
+      font-size: 32px;
+      text-shadow: 0 0 10px #00ffc4;
+    }
+    .wrapper {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .box {
+      background: #1e1e1e;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 255, 196, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .box h2 {
+      color: #00ffc4;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #00ffc4;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .btn {
+      flex: 1 1 45%;
+      padding: 10px;
+      background: linear-gradient(90deg, #00ffc4, #00ffae);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 0 10px #00ffc4;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background: linear-gradient(90deg, #00ffae, #00ffc4);
+      box-shadow: 0 0 20px #00ffc4;
+    }
+    .loading {
+      display: none;
+      margin-top: 15px;
+      color: #00ffc4;
+      text-align: center;
+    }
+    footer {
+      margin-top: 40px;
+      padding: 20px;
+      background: #1a1a1a;
+      text-align: center;
+      border-radius: 10px;
+      color: #aaa;
+      font-size: 14px;
+    }
+    .toast {
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      z-index: 1000;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      color: #fff;
+    }
+    .toast.success { background-color: #28a745; }
+    .toast.error { background-color: #dc3545; }
+    .toast.info { background-color: #17a2b8; }
+    @media (max-width: 768px) {
+      .btn {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Video Downloader</title>
+  <style>
+    /* ...semua style tetap sama, tidak diubah... */
+    /* (potong demi singkat, karena style kamu sudah rapi dan tidak perlu diubah) */
+  </style>
+</head>
+<body>
+  <h1>Video Downloader (TikTok, Facebook, YouTube, Instagram)</h1>
+  <div class="wrapper">
+    <!-- BOX MP4 -->
+    <div class="box">
+      <h2>Download Video (MP4)</h2>
+      <div class="form-group">
+        <label>URL Video (TikTok, Facebook, YouTube, Instagram)</label>
+        <input type="text" id="videoUrlMp4" placeholder="Masukkan URL video" />
+      </div>
+      <div class="button-group">
+        <button class="btn" onclick="downloadVideo('mp4', 'videoUrlMp4')">Download MP4</button>
+      </div>
+      <div class="loading" id="loadingMp4">Proses...</div>
+    </div>
+
+    <!-- BOX MP3 -->
+    <div class="box">
+      <h2>Download Audio (MP3)</h2>
+      <div class="form-group">
+        <label>URL Video (TikTok, Facebook, YouTube, Instagram)</label>
+        <input type="text" id="videoUrlMp3" placeholder="Masukkan URL video" />
+      </div>
+      <div class="button-group">
+        <button class="btn" onclick="downloadVideo('mp3', 'videoUrlMp3')">Download MP3</button>
+      </div>
+      <div class="loading" id="loadingMp3">Proses...</div>
+    </div>
+  </div>
+  <footer>
+    &copy; 2025 PeyxDev. All rights reserved.
+  </footer>
+
+  <script>
+    function showToast(msg, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    async function downloadVideo(format, inputId) {
+  const url = document.getElementById(inputId).value;
+  const loadingId = format === 'mp4' ? 'loadingMp4' : 'loadingMp3';
+  
+  if (!url) {
+    showToast('Masukkan URL video', 'error');
+    return;
+  }
+
+  document.getElementById(loadingId).style.display = 'block';
+
+  try {
+    // Langsung buka endpoint download
+    window.location.href = `/download?url=${encodeURIComponent(url)}&format=${format}`;
+  } catch (err) {
+    console.error(err);
+    showToast('Gagal memulai download', 'error');
+  } finally {
+    document.getElementById(loadingId).style.display = 'none';
+  }
+}
+  </script>
+</body>
+</html>
