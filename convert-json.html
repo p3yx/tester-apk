@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xray Config to JSON Converter</title>
+    <style>
+        :root {
+            --primary-color: #10B981;
+            --primary-dark: #059669;
+            --primary-light: #6EE7B7;
+            --bg-color: #111827;
+            --bg-secondary: #1F2937;
+            --text-color: #E5E7EB;
+            --text-secondary: #9CA3AF;
+            --border-color: #374151;
+            --error-color: #EF4444;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 2rem auto;
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            position: relative;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            font-size: 2rem;
+        }
+        
+        .converter-box {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            color: var(--primary-light);
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        select, textarea {
+            width: 100%;
+            max-width: 800px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        textarea {
+            min-height: 150px;
+            font-family: 'Fira Code', monospace;
+            resize: vertical;
+        }
+        
+        textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: background-color 0.3s, transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: auto;
+            max-width: 800px;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .result-box {
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .copy-btn {
+            background-color: var(--primary-dark);
+            margin-top: 1rem;
+        }
+        
+        .copy-btn:hover {
+            background-color: #047857;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            gap: 0.5rem;
+            justify-content: center;
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            cursor: pointer;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            border-radius: 6px 6px 0 0;
+            white-space: nowrap;
+        }
+        
+        .tab:hover {
+            color: var(--text-color);
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+            width: 100%;
+        }
+        
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Center Top Notification */
+        .center-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .center-notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .center-notification.error {
+            background-color: var(--error-color);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: auto;
+            width: 100%;
+            max-width: 900px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem auto;
+                padding: 1.25rem;
+                width: 95%;
+            }
+            
+            .tabs {
+                justify-content: flex-start;
+            }
+            
+            .tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            textarea, select, button {
+                max-width: 100%;
+            }
+            
+            .center-notification {
+                width: 90%;
+                text-align: center;
+                padding: 0.75rem 1rem;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <i class="fas fa-exchange-alt"></i> Xray Configuration Converter
+        </h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('vmess')">
+                <i class="fas fa-paper-plane"></i> VMess
+            </div>
+            <div class="tab" onclick="switchTab('vless')">
+                <i class="fas fa-bolt"></i> VLESS
+            </div>
+            <div class="tab" onclick="switchTab('trojan')">
+                <i class="fas fa-shield-alt"></i> Trojan
+            </div>
+            <div class="tab" onclick="switchTab('ss')">
+                <i class="fas fa-user-secret"></i> Shadowsocks
+            </div>
+        </div>
+        
+        <!-- VMess Converter -->
+        <div id="vmess" class="tab-content active">
+            <div class="converter-box">
+                <label for="vmess-input">
+                    <i class="fas fa-link"></i> VMess Link (vmess://...)
+                </label>
+                <textarea id="vmess-input" placeholder="vmess://eyJhZGQiOiJleGFtcGxlLmNvbSIsInBvcnQiOiI0NDMiLCJpZCI6IjEyMzQ1Njc4OS0xMjM0LTU2NzgtODk5OS0xMjM0NTY3ODkwMTIiLCJhaWQiOiIwIiwibmV0Ijoid3MiLCJ0eXBlIjoibm9uZSIsImhvc3QiOiIiLCJwYXRoIjoiL3BhdGgiLCJ0bHMiOiJ0bHMifQ=="></textarea>
+                <button onclick="convertVMess()">
+                    <i class="fas fa-code"></i> Convert to JSON
+                </button>
+            </div>
+            <div class="result-box">
+                <label for="vmess-output">
+                    <i class="fas fa-file-code"></i> JSON Output
+                </label>
+                <textarea id="vmess-output" readonly></textarea>
+                <button class="copy-btn" onclick="copyToClipboard('vmess-output')">
+                    <i class="far fa-copy"></i> Copy JSON
+                </button>
+            </div>
+        </div>
+        
+        <!-- VLESS Converter -->
+        <div id="vless" class="tab-content">
+            <div class="converter-box">
+                <label for="vless-input">
+                    <i class="fas fa-link"></i> VLESS Link (vless://...)
+                </label>
+                <textarea id="vless-input" placeholder="vless://12345678-1234-5678-1234-567812345678@example.com:443?security=tls&sni=example.com&type=ws&path=%2Fpath#VLESS"></textarea>
+                <button onclick="convertVLESS()">
+                    <i class="fas fa-code"></i> Convert to JSON
+                </button>
+            </div>
+            <div class="result-box">
+                <label for="vless-output">
+                    <i class="fas fa-file-code"></i> JSON Output
+                </label>
+                <textarea id="vless-output" readonly></textarea>
+                <button class="copy-btn" onclick="copyToClipboard('vless-output')">
+                    <i class="far fa-copy"></i> Copy JSON
+                </button>
+            </div>
+        </div>
+        
+        <!-- Trojan Converter -->
+        <div id="trojan" class="tab-content">
+            <div class="converter-box">
+                <label for="trojan-input">
+                    <i class="fas fa-link"></i> Trojan Link (trojan://...)
+                </label>
+                <textarea id="trojan-input" placeholder="trojan://password@example.com:443?security=tls&sni=example.com&type=ws&path=%2Fpath#Trojan"></textarea>
+                <button onclick="convertTrojan()">
+                    <i class="fas fa-code"></i> Convert to JSON
+                </button>
+            </div>
+            <div class="result-box">
+                <label for="trojan-output">
+                    <i class="fas fa-file-code"></i> JSON Output
+                </label>
+                <textarea id="trojan-output" readonly></textarea>
+                <button class="copy-btn" onclick="copyToClipboard('trojan-output')">
+                    <i class="far fa-copy"></i> Copy JSON
+                </button>
+            </div>
+        </div>
+        
+        <!-- Shadowsocks Converter -->
+        <div id="ss" class="tab-content">
+            <div class="converter-box">
+                <label for="ss-input">
+                    <i class="fas fa-link"></i> Shadowsocks Link (ss://...)
+                </label>
+                <textarea id="ss-input" placeholder="ss://YWVzLTI1Ni1nY206cGFzc3dvcmQ=@example.com:443#Shadowsocks"></textarea>
+                <button onclick="convertShadowsocks()">
+                    <i class="fas fa-code"></i> Convert to JSON
+                </button>
+            </div>
+            <div class="result-box">
+                <label for="ss-output">
+                    <i class="fas fa-file-code"></i> JSON Output
+                </label>
+                <textarea id="ss-output" readonly></textarea>
+                <button class="copy-btn" onclick="copyToClipboard('ss-output')">
+                    <i class="far fa-copy"></i> Copy JSON
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Center Top Notification -->
+    <div class="center-notification" id="centerNotification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationMessage">Operation completed successfully</span>
+    </div>
+
+    <footer>
+        <p>Xray Config Converter &copy; 2025 | Made with PeyxDev <i class="fas fa-heart" style="color: var(--primary-color);"></i></p>
+    </footer>
+
+    <script>
+        // Tab switching
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Deactivate all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activate selected tab and content
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Show loading animation
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+        
+        // Hide loading animation
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+        
+        // Show center notification
+        function showCenterNotification(message, isError = false) {
+            const notification = document.getElementById('centerNotification');
+            const messageElement = document.getElementById('notificationMessage');
+            
+            messageElement.textContent = message;
+            notification.className = isError ? 
+                'center-notification error show' : 
+                'center-notification show';
+            
+            // Set icon based on error status
+            const icon = notification.querySelector('i');
+            icon.className = isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // VMess conversion
+        function convertVMess() {
+            const vmessInput = document.getElementById('vmess-input').value.trim();
+            if (!vmessInput.startsWith('vmess://')) {
+                showCenterNotification('Invalid VMess format! Must start with vmess://', true);
+                return;
+            }
+            
+            showLoading();
+            
+            // Simulate processing delay
+            setTimeout(() => {
+                try {
+                    // Decode base64 part
+                    const base64Data = vmessInput.substring(8);
+                    const decodedData = atob(base64Data);
+                    const vmessConfig = JSON.parse(decodedData);
+                    
+                    // Convert to Xray JSON format
+                    const xrayConfig = {
+                        "outbounds": [
+                            {
+                                "protocol": "vmess",
+                                "settings": {
+                                    "vnext": [
+                                        {
+                                            "address": vmessConfig.add,
+                                            "port": parseInt(vmessConfig.port),
+                                            "users": [
+                                                {
+                                                    "id": vmessConfig.id,
+                                                    "alterId": parseInt(vmessConfig.aid) || 0,
+                                                    "security": vmessConfig.scy || "auto"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "streamSettings": {
+                                    "network": vmessConfig.net || "tcp",
+                                    "security": vmessConfig.tls || "none",
+                                    "wsSettings": vmessConfig.net === "ws" ? {
+                                        "path": vmessConfig.path || "",
+                                        "headers": {
+                                            "Host": vmessConfig.host || ""
+                                        }
+                                    } : null,
+                                    "tcpSettings": vmessConfig.net === "tcp" ? {
+                                        "header": {
+                                            "type": vmessConfig.type || "none"
+                                        }
+                                    } : null
+                                },
+                                "tag": "proxy"
+                            }
+                        ]
+                    };
+                    
+                    // Beautify JSON
+                    document.getElementById('vmess-output').value = JSON.stringify(xrayConfig, null, 2);
+                    showCenterNotification('VMess converted successfully!');
+                } catch (e) {
+                    showCenterNotification('Error converting VMess: ' + e.message, true);
+                    console.error(e);
+                } finally {
+                    hideLoading();
+                }
+            }, 800); // Simulate processing time
+        }
+        
+        // VLESS conversion
+        function convertVLESS() {
+            const vlessInput = document.getElementById('vless-input').value.trim();
+            if (!vlessInput.startsWith('vless://')) {
+                showCenterNotification('Invalid VLESS format! Must start with vless://', true);
+                return;
+            }
+            
+            showLoading();
+            
+            setTimeout(() => {
+                try {
+                    // Parse VLESS URL
+                    const url = new URL(vlessInput);
+                    const uuid = url.username;
+                    const server = url.hostname;
+                    const port = parseInt(url.port);
+                    const params = new URLSearchParams(url.search);
+                    
+                    // Convert to Xray JSON format
+                    const xrayConfig = {
+                        "outbounds": [
+                            {
+                                "protocol": "vless",
+                                "settings": {
+                                    "vnext": [
+                                        {
+                                            "address": server,
+                                            "port": port,
+                                            "users": [
+                                                {
+                                                    "id": uuid,
+                                                    "encryption": "none",
+                                                    "flow": params.get('flow') || ""
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "streamSettings": {
+                                    "network": params.get('type') || "tcp",
+                                    "security": params.get('security') || "none",
+                                    "tlsSettings": params.get('security') === "tls" ? {
+                                        "serverName": params.get('sni') || server,
+                                        "allowInsecure": false
+                                    } : null,
+                                    "wsSettings": params.get('type') === "ws" ? {
+                                        "path": params.get('path') || "/",
+                                        "headers": {
+                                            "Host": params.get('host') || server
+                                        }
+                                    } : null,
+                                    "grpcSettings": params.get('type') === "grpc" ? {
+                                        "serviceName": params.get('serviceName') || ""
+                                    } : null
+                                },
+                                "tag": "proxy"
+                            }
+                        ]
+                    };
+                    
+                    // Beautify JSON
+                    document.getElementById('vless-output').value = JSON.stringify(xrayConfig, null, 2);
+                    showCenterNotification('VLESS converted successfully!');
+                } catch (e) {
+                    showCenterNotification('Error converting VLESS: ' + e.message, true);
+                    console.error(e);
+                } finally {
+                    hideLoading();
+                }
+            }, 800);
+        }
+        
+        // Trojan conversion
+        function convertTrojan() {
+            const trojanInput = document.getElementById('trojan-input').value.trim();
+            if (!trojanInput.startsWith('trojan://')) {
+                showCenterNotification('Invalid Trojan format! Must start with trojan://', true);
+                return;
+            }
+            
+            showLoading();
+            
+            setTimeout(() => {
+                try {
+                    // Parse Trojan URL
+                    const url = new URL(trojanInput);
+                    const password = url.username;
+                    const server = url.hostname;
+                    const port = parseInt(url.port);
+                    const params = new URLSearchParams(url.search);
+                    
+                    // Convert to Xray JSON format
+                    const xrayConfig = {
+                        "outbounds": [
+                            {
+                                "protocol": "trojan",
+                                "settings": {
+                                    "servers": [
+                                        {
+                                            "address": server,
+                                            "port": port,
+                                            "password": password
+                                        }
+                                    ]
+                                },
+                                "streamSettings": {
+                                    "network": params.get('type') || "tcp",
+                                    "security": params.get('security') || "tls",
+                                    "tlsSettings": {
+                                        "serverName": params.get('sni') || server,
+                                        "allowInsecure": false
+                                    },
+                                    "wsSettings": params.get('type') === "ws" ? {
+                                        "path": params.get('path') || "/",
+                                        "headers": {
+                                            "Host": params.get('host') || server
+                                        }
+                                    } : null,
+                                    "grpcSettings": params.get('type') === "grpc" ? {
+                                        "serviceName": params.get('serviceName') || ""
+                                    } : null
+                                },
+                                "tag": "proxy"
+                            }
+                        ]
+                    };
+                    
+                    // Beautify JSON
+                    document.getElementById('trojan-output').value = JSON.stringify(xrayConfig, null, 2);
+                    showCenterNotification('Trojan converted successfully!');
+                } catch (e) {
+                    showCenterNotification('Error converting Trojan: ' + e.message, true);
+                    console.error(e);
+                } finally {
+                    hideLoading();
+                }
+            }, 800);
+        }
+        
+        // Shadowsocks conversion
+        function convertShadowsocks() {
+            const ssInput = document.getElementById('ss-input').value.trim();
+            if (!ssInput.startsWith('ss://')) {
+                showCenterNotification('Invalid Shadowsocks format! Must start with ss://', true);
+                return;
+            }
+            
+            showLoading();
+            
+            setTimeout(() => {
+                try {
+                    // Parse Shadowsocks URL
+                    let decoded;
+                    try {
+                        // Try standard base64 decode first
+                        const base64Part = ssInput.substring(5).split('#')[0];
+                        decoded = atob(base64Part);
+                    } catch {
+                        // Try URI-encoded base64
+                        const uriPart = ssInput.substring(5).split('#')[0];
+                        decoded = atob(decodeURIComponent(uriPart));
+                    }
+                    
+                    const [methodPassword, serverPort] = decoded.split('@');
+                    const [method, password] = methodPassword.split(':');
+                    const [server, port] = serverPort.split(':');
+                    
+                    // Convert to Xray JSON format
+                    const xrayConfig = {
+                        "outbounds": [
+                            {
+                                "protocol": "shadowsocks",
+                                "settings": {
+                                    "servers": [
+                                        {
+                                            "address": server,
+                                            "port": parseInt(port),
+                                            "method": method,
+                                            "password": password
+                                        }
+                                    ]
+                                },
+                                "tag": "proxy"
+                            }
+                        ]
+                    };
+                    
+                    // Beautify JSON
+                    document.getElementById('ss-output').value = JSON.stringify(xrayConfig, null, 2);
+                    showCenterNotification('Shadowsocks converted successfully!');
+                } catch (e) {
+                    showCenterNotification('Error converting Shadowsocks: ' + e.message, true);
+                    console.error(e);
+                } finally {
+                    hideLoading();
+                }
+            }, 800);
+        }
+        
+        // Copy to clipboard
+        function copyToClipboard(elementId) {
+            const output = document.getElementById(elementId);
+            output.select();
+            document.execCommand('copy');
+            
+            showCenterNotification('JSON copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
