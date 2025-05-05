@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VPN & TopUp Store</title>
+  <title>Tools Manager</title>
   <style>
     :root {
       --primary-color: #00ffcc;
@@ -233,6 +233,10 @@
       background-image: url('https://img.icons8.com/?size=100&id=114330&format=png&color=000000');
     }
     
+    .icon-json {
+      background-image: url('https://img.icons8.com/?size=100&id=E6LuCTDk8X6X&format=png&color=000000');
+    }
+    
     .icon-bug {
       background-image: url('https://img.icons8.com/?size=100&id=13449&format=png&color=000000');
     }
@@ -265,7 +269,7 @@
     <div class="nav-container">
       <div class="brand">©PeyxDev</div>
       </div>
-      <h2></h2>Tools manage repositori github, Record DNS, Convert XRAY</h2>
+      <h2>Tools Manager</h2>
     </div>
   </header>
 
@@ -298,7 +302,7 @@
       </div>
     </div>
 
-    <!-- VPN Services -->
+    <!-- Github Tools -->
     <div class="dashboard-card" onclick="window.location.href='github.html'">
       <div class="tools-grid">
         <div class="tool-card">
@@ -310,7 +314,7 @@
       </div>
     </div>
 
-    <!-- Internet Packages -->
+    <!-- DNS Record -->
     <div class="dashboard-card" onclick="window.location.href='dns.html'">
       <div class="tools-grid">
         <div class="tool-card">
@@ -322,13 +326,25 @@
       </div>
     </div>
 
-    <!-- Game Top Up -->
+    <!-- Convert Yaml -->
     <div class="dashboard-card" onclick="window.location.href='convert.html'">
       <div class="tools-grid">
         <div class="tool-card">
           <div class="tool-icon icon-game"></div>
           <h3>Convert XRAY</h3>
           <p>Tools untuk convert link XRAY jadi format yaml (untuk STB,openclash,dll)</p>
+          <button class="tool-btn">Buka</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Convert Json -->
+    <div class="dashboard-card" onclick="window.location.href='convert-json.html'">
+      <div class="tools-grid">
+        <div class="tool-card">
+          <div class="tool-icon icon-json"></div>
+          <h3>Convert JSON</h3>
+          <p>Tools untuk convert link XRAY jadi format JSON (untuk STB,openclash,dll)</p>
           <button class="tool-btn">Buka</button>
         </div>
       </div>
