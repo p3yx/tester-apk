@@ -1,977 +1,1212 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tools Manager</title>
-<style>
-  body {
-    background: #121212;
-    color: #f0f0f0;
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    padding: 20px;
-  }
-  h1, p {
-    text-align: center;
-    margin: 0;
-  }
-  h1 {
-    color: #00e676;
-    margin-bottom: 8px;
-  }
-  p {
-    color: #bbb;
-    margin-bottom: 24px;
-  }
-  .container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 16px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .box {
-    background: #1a1a1a;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 255, 196, 0.1);
-    width: 360px;
-  }
-  label {
-    margin-top: 10px;
-    margin-bottom: 4px;
-    display: block;
-    font-size: 14px;
-  }
-  input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #333;
-    border-radius: 6px;
-    background: #262626;
-    color: #eee;
-    font-size: 14px;
-    box-sizing: border-box;
-    margin-bottom: 12px;
-  }
-  .btn {
-    background: #00e6b8;
-    color: #000;
-    padding: 10px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background 0.2s ease;
-    display: inline-block;
-    margin: 4px 4px 8px 0;
-  }
-  .btn:hover {
-    background: #00bfa5;
-  }
-  .btn-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-  .loading {
-    display: none;
-    text-align: center;
-    color: #00ffc4;
-    margin-top: 12px;
-  }
-  .preview {
-    white-space: pre-wrap;
-    background: #1e1e1e;
-    border-radius: 6px;
-    padding: 12px;
-    margin-top: 12px;
-    overflow: auto;
-    max-height: 300px;
-    font-size: 13px;
-    display: none;
-  }
-  .toast {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 20px;
-    border-radius: 6px;
-    font-weight: bold;
-    z-index: 999;
-    font-size: 14px;
-  }
-  .success {
-    background-color: #28a745;
-    color: white;
-  }
-  .error {
-    background-color: #dc3545;
-    color: white;
-  }
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 999;
-    padding-top: 300px;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.5);
-    animation: fadeIn 0.3s ease;
-  }
-  .modal-content {
-    background-color: #1a1a1a;
-    margin: auto;
-    padding: 10px;
-    border-radius: 12px;
-    border: 1px solid #888;
-    width: 90%;
-    max-width: 400px;
-    animation: slideDown 0.3s ease;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    text-align: center;
-  }
-  @keyframes fadeIn {
-    from {opacity: 0} to {opacity: 1}
-  }
-  @keyframes slideDown {
-    from {transform: translateY(-20px); opacity: 0}
-    to {transform: translateY(0); opacity: 1}
-  }
-  .modal .btn {
-    background-color: #00bfa5;
-    color: #1a1a1a;
-    padding: 10px 18px;
-    margin-top: 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .modal .btn:hover {
-    background-color: #c0392b;
-  }
-  .modal .close {
-    float: right;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  .close {
-    float: right;
-    font-size: 24px;
-    font-weight: bold;
-    color: #999;
-    cursor: pointer;
-  }
-  .close:hover {
-    color: #fff;
-  }
-  #editBox {
-    display: none;
-  }
-    footer {
-      margin-top: 40px;
-      padding: 20px;
-      background: #1a1a1a;
-      text-align: center;
-      border-radius: 10px;
-      color: #aaa;
-      font-size: 14px;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Manager Pro</title>
+  <style>
+    :root {
+      --primary: #00e6b8;
+      --primary-dark: #00bfa5;
+      --danger: #dc3545;
+      --dark: #121212;
+      --darker: #1a1a1a;
+      --light: #f0f0f0;
+      --lighter: #f8f8f8;
+      --gray: #262626;
+      --border: #333;
     }
-</style>
+    
+    body {
+      background: var(--dark);
+      color: var(--light);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    
+    h1, h2, h3 {
+      color: var(--primary);
+      margin-top: 0;
+    }
+    
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .panel {
+      background: var(--darker);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 230, 184, 0.1);
+    }
+    
+    input, select, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--gray);
+      color: var(--light);
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    button {
+      background: var(--primary);
+      color: var(--dark);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    
+    button:hover {
+      background: var(--primary-dark);
+    }
+    
+    button.danger {
+      background: var(--danger);
+      color: white;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    
+    .btn-group button {
+      flex: 1;
+    }
+    
+    .file-explorer {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 15px;
+      background: var(--gray);
+    }
+    
+    .file-item {
+      padding: 8px;
+      margin: 2px 0;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    
+    .file-item:hover {
+      background: rgba(0, 230, 184, 0.1);
+    }
+    
+    .file-item.selected {
+      background: rgba(0, 230, 184, 0.2);
+    }
+    
+    .file-item.folder {
+      color: var(--primary);
+      font-weight: bold;
+    }
+    
+    .preview-area {
+      height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-family: monospace;
+      background: var(--gray);
+      border-radius: 6px;
+      padding: 15px;
+      border: 1px solid var(--border);
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0, 230, 184, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-weight: bold;
+      z-index: 1000;
+      animation: slideDown 0.3s ease-out;
+    }
+    
+    .toast.success {
+      background: var(--primary);
+      color: var(--dark);
+    }
+    
+    .toast.error {
+      background: var(--danger);
+      color: white;
+    }
+    
+    @keyframes slideDown {
+      from { top: -50px; opacity: 0; }
+      to { top: 20px; opacity: 1; }
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1001;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-content {
+      background: var(--darker);
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      animation: modalFadeIn 0.3s;
+    }
+    
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    #currentPath {
+      font-family: monospace;
+      margin-bottom: 10px;
+      padding: 8px;
+      background: var(--gray);
+      border-radius: 4px;
+      word-break: break-all;
+    }
+    
+    #uploadProgress {
+      width: 100%;
+      margin-top: 10px;
+    }
+    
+    #uploadStatus {
+      margin-top: 10px;
+      font-size: 14px;
+      color: var(--primary);
+    }
+  </style>
 </head>
 <body>
-
-<h1>GitHub Manager</h1>
-<p>Kelola file GitHub langsung dari aplikasi</p>
-
-<div class="container">
-
-  <!-- Token dan Buat Folder -->
-  <div class="box">
-    <label for="token">GitHub Token</label>
-    <input type="text" id="token" placeholder="Masukkan token GitHub">
-    <button class="btn" onclick="saveToken()">Simpan Token</button>
-
-    <label>Repo (username/repo)</label>
-    <input type="text" id="repo" />
-    <label>Branch</label>
-    <input type="text" id="branch" value="main" />
-
+  <h1>GitHub Manager Pro</h1>
+  <p>Kelola repository GitHub Anda dengan mudah</p>
+  
+  <div class="container">
+    <!-- Panel Auth & Repo -->
+    <div class="panel">
+      <h2>Authentication</h2>
+      <label for="token">GitHub Token:</label>
+      <input type="password" id="token" placeholder="Masukkan token GitHub">
+      <button id="authBtn">Authenticate</button>
+      <div id="repoSelector" style="display: none; margin-top: 15px;">
+        <label for="repos">Repository:</label>
+        <select id="repos"></select>
+        <label for="branches">Branch:</label>
+        <select id="branches"></select>
+        <button id="initRepo">Initialize</button>
+      </div>
+    </div>
+    
+    <!-- Panel File Explorer -->
+    <div class="panel">
+      <h2>File Explorer</h2>
+      <div id="currentPath">/</div>
+      <div id="fileList" class="file-explorer">
+        <div class="file-item folder" onclick="navigateUp()">📁 .. (Parent Directory)</div>
+      </div>
+      <div class="btn-group">
+        <button onclick="refreshFiles()">Refresh</button>
+        <button onclick="previewFile()">Preview</button>
+        <button onclick="editFile()">Edit</button>
+      </div>
+      <div class="btn-group">
+        <button onclick="openRenameModal()">Rename</button>
+        <button class="danger" onclick="openDeleteModal()">Delete</button>
+      </div>
+    </div>
+    
+    <!-- Panel File Operations -->
+    <div class="panel">
+      <h2>File Operations</h2>
+      <div id="filePreview" class="preview-area">
+        Pilih file untuk melihat preview
+      </div>
+      <div id="editBox" style="display: none;">
+        <textarea id="fileContent" rows="10"></textarea>
+        <input type="hidden" id="filePath">
+        <div class="btn-group">
+          <button onclick="saveFile()">Save</button>
+          <button onclick="cancelEdit()">Cancel</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Panel Upload & Create -->
+    <div class="panel">
+      <h2>Upload Files</h2>
+      <input type="file" id="fileUpload" multiple>
+      <div class="btn-group">
+        <button onclick="startUpload(false)">Upload</button>
+        <button onclick="startUpload(true)">Overwrite</button>
+      </div>
+      <progress id="uploadProgress" value="0" max="100" style="display: none;"></progress>
+      <div id="uploadStatus" style="display: none;"></div>
+      
+      <h3 style="margin-top: 20px;">Create New</h3>
+      <input type="text" id="newName" placeholder="Nama file/folder">
+      <textarea id="newContent" rows="3" placeholder="Isi file (kosongi untuk folder)"></textarea>
+      <div class="btn-group">
+        <button onclick="createFile()">Create File</button>
+        <button onclick="createFolder()">Create Folder</button>
+      </div>
+    </div>
   </div>
   
-    <!-- Edit File -->
-  <div class="box" id="editBox">
-    <h2>Edit File</h2>
-    <label>Path</label>
-    <input type="text" id="filePath" readonly />
-    <label>Isi File</label>
-    <textarea id="fileContent" rows="10"></textarea>
-    <div class="btn-group">
-      <button class="btn" onclick="saveFile()">Simpan</button>
-      <button class="btn" onclick="cancelEdit()">Batal</button>
+  <!-- Modal Rename -->
+  <div id="renameModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeRenameModal()" style="float: right; cursor: pointer; font-size: 24px;">&times;</span>
+      <h2>Rename File/Folder</h2>
+      <input type="text" id="newFileName" placeholder="New name">
+      <button onclick="confirmRename()">Rename</button>
     </div>
   </div>
-
-  <!-- File Manager -->
-  <div class="box">
-    <h2>File Manager</h2>
-    <label>Pilih File</label>
-    <select id="fileList"><option value="">-- Pilih file --</option></select>
-
-    <div class="btn-group">
-      <button class="btn" onclick="listFiles()">List File</button>
-      <button class="btn" onclick="previewFile()">Preview</button>
-      <button class="btn" onclick="editFile()">Edit</button>
-      <button class="btn" onclick="openRenameModal()">Rename</button>
-      <button class="btn" onclick="openDeleteModal()">Hapus</button>
-    </div>
-
-    <div id="filePreview" class="preview"></div>
-
-    <label>Pilih File Upload</label>
-    <input type="file" id="fileUpload" multiple />
-    <label>Folder Tujuan (optional)</label>
-    <input type="text" id="folderPath" placeholder="folder/subfolder" />
-    <div class="btn-group">
-      <button class="btn" onclick="uploadFiles(false)">Upload</button>
-      <button class="btn" onclick="uploadFiles(true)">Upload & Timpa</button>
-    </div>
-
-    <label>Masukan Nama Folder</label>
-    <input type="text" id="newFolderName" placeholder="Nama folder baru" />
-    <button class="btn" onclick="createFolder()">Buat Folder</button>
-  </div>
-
-  <!-- Create File & Advanced Operations -->
-  <div class="box">
-    <h2>Create File</h2>
-    <label>Nama File Baru</label>
-    <input type="text" id="newFileInput" placeholder="contoh.txt" />
-    <label>Folder Tujuan (optional)</label>
-    <input type="text" id="newFileFolder" placeholder="folder/subfolder" />
-    <textarea id="newFileContent" rows="5" placeholder="Isi file baru..."></textarea>
-    <button class="btn" onclick="createFile()">Buat File</button>
-    
-    <hr style="border: 0; border-top: 1px solid #333; margin: 16px 0;">
-    
-    <h2>Advanced Operations</h2>
-    <label>Folder Path</label>
-    <input type="text" id="targetFolder" placeholder="folder/subfolder" />
-    
-    <div class="btn-group">
-      <button class="btn" onclick="openDeleteFolderModal()">Hapus Folder</button>
-      <button class="btn" onclick="openDeleteFilesInFolderModal()">Hapus File dalam Folder</button>
-    </div>
-    
-    <label>Commit Message</label>
-    <input type="text" id="commitMessage" placeholder="Pesan commit" />
-    <button class="btn" onclick="commitChanges()">Commit Changes</button>
-  </div>
-</div>
-
-<div class="loading" id="loading">Memproses...</div>
-
-<!-- Modal Rename -->
-<div id="renameModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeRenameModal()">&times;</span>
-    <h2>Ganti Nama File</h2>
-    <input type="text" id="newFileName" placeholder="Masukkan nama baru" />
-    <button class="btn" onclick="confirmRename()">Ganti Nama</button>
-  </div>
-</div>
-
-<!-- Modal Hapus -->
-<div id="deleteModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeDeleteModal()">&times;</span>
-    <h2>Konfirmasi Hapus</h2>
-    <p>Apakah Anda yakin ingin menghapus file ini?</p>
-    <p id="deleteFileName" style="font-weight:bold;"></p>
-    <button class="btn" onclick="confirmDelete()">Ya, Hapus</button>
-  </div>
-</div>
-
-<!-- Modal Hapus Folder -->
-<div id="deleteFolderModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeDeleteFolderModal()">&times;</span>
-    <h2>Konfirmasi Hapus Folder</h2>
-    <p>Apakah Anda yakin ingin menghapus folder ini dan semua isinya?</p>
-    <p id="deleteFolderPath" style="font-weight:bold;"></p>
-    <button class="btn" onclick="confirmDeleteFolder()">Ya, Hapus</button>
-  </div>
-</div>
-
-<!-- Modal Hapus File dalam Folder -->
-<div id="deleteFilesInFolderModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeDeleteFilesInFolderModal()">&times;</span>
-    <h2>Konfirmasi Hapus File dalam Folder</h2>
-    <p>Apakah Anda yakin ingin menghapus semua file dalam folder ini?</p>
-    <p id="deleteFilesInFolderPath" style="font-weight:bold;"></p>
-    <button class="btn" onclick="confirmDeleteFilesInFolder()">Ya, Hapus</button>
-  </div>
-</div>
-
-<footer id="kontak">
-  <p>© 2025 PeyxDev - All Rights Reserved</p>
-</footer>
-
-<script>
-  const GITHUB_API = "https://api.github.com";
-  const tokenInput = document.getElementById("token");
-  let currentRenamePath = "";
-
-  window.onload = () => {
-    const savedToken = localStorage.getItem("github_token");
-    if (savedToken) tokenInput.value = savedToken;
-  };
-
-  function getVal(id) {
-    return document.getElementById(id).value.trim();
-  }
-
-  function showToast(msg, type = "success") {
-    const el = document.createElement("div");
-    el.className = `toast ${type}`;
-    el.innerText = msg;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 3000);
-  }
-
-  function loading(state) {
-    document.getElementById("loading").style.display = state ? "block" : "none";
-  }
-
-  function saveToken() {
-    const token = tokenInput.value.trim();
-    if (!token) return showToast("Token kosong!", "error");
-    localStorage.setItem("github_token", token);
-    showToast("Token disimpan!", "success");
-  }
-
-  async function listFiles() {
-    const token = getVal("token"), repo = getVal("repo"), branch = getVal("branch"), path = getVal("folderPath");
-    if (!token || !repo) return showToast("Token dan repo wajib diisi", "error");
-    try {
-      loading(true);
-      const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}?ref=${branch}`, {
-        headers: { Authorization: `token ${token}` }
-      });
-      const data = await res.json();
-      const sel = document.getElementById("fileList");
-      sel.innerHTML = `<option value="">-- Pilih file --</option>`;
-      data.forEach(file => {
-        const opt = document.createElement("option");
-        opt.value = file.path;
-        opt.text = file.type === "dir" ? `📁 ${file.name}` : file.name;
-        sel.appendChild(opt);
-      });
-      showToast("File dimuat");
-    } catch (e) {
-      showToast("Gagal: " + e.message, "error");
-    } finally {
-      loading(false);
-    }
-  }
-
-  async function previewFile() {
-    const path = getVal("fileList"), token = getVal("token"), repo = getVal("repo"), branch = getVal("branch");
-    if (!path) return;
-    try {
-      const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}?ref=${branch}`, {
-        headers: { Authorization: `token ${token}` }
-      });
-      const data = await res.json();
-      const previewEl = document.getElementById("filePreview");
-      if (data.type === "dir") {
-        previewEl.innerText = "Ini adalah direktori. Tidak dapat menampilkan pratinjau.";
-      } else {
-        const preview = atob(data.content.replace(/\n/g, ""));
-        previewEl.innerText = preview;
-      }
-      previewEl.style.display = "block";
-    } catch {
-      document.getElementById("filePreview").innerText = "Gagal memuat isi file";
-    }
-  }
-
-  function cancelEdit() {
-    document.getElementById("editBox").style.display = "none";
-    document.getElementById("filePath").value = '';
-    document.getElementById("fileContent").value = '';
-  }
-
-  async function editFile() {
-    const path = getVal("fileList"), token = getVal("token"), repo = getVal("repo"), branch = getVal("branch");
-    if (!path) return showToast("Pilih file terlebih dahulu", "error");
-    try {
-      loading(true);
-      const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}?ref=${branch}`, {
-        headers: { Authorization: `token ${token}` }
-      });
-      const data = await res.json();
-      if (data.type === "dir") {
-        throw new Error("Tidak dapat mengedit direktori");
-      }
-      const content = atob(data.content.replace(/\n/g, ""));
-      document.getElementById("editBox").style.display = "block";
-      document.getElementById("filePath").value = path;
-      document.getElementById("fileContent").value = content;
-    } catch (e) {
-      showToast("Gagal memuat file untuk diedit: " + e.message, "error");
-    } finally {
-      loading(false);
-    }
-  }
-
-  async function saveFile() {
-    const token = getVal("token"), repo = getVal("repo"), branch = getVal("branch");
-    const path = getVal("filePath"), content = getVal("fileContent");
-    if (!path || !content) return showToast("File path dan isi file wajib diisi", "error");
-    try {
-      loading(true);
-      const shaRes = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}?ref=${branch}`, {
-        headers: { Authorization: `token ${token}` }
-      });
-      const shaData = await shaRes.json();
-      const sha = shaData.sha;
-
-      const updateRes = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `token ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: "Update file content",
-          content: btoa(content),
-          sha: sha
-        })
-      });
-
-      const updateData = await updateRes.json();
-      if (updateData.content) {
-        showToast("File berhasil disimpan", "success");
-        cancelEdit();
-      }
-    } catch (e) {
-      showToast("Gagal menyimpan file: " + e.message, "error");
-    } finally {
-      loading(false);
-    }
-  }
-
-  function openRenameModal() {
-    const selectedFile = getVal("fileList");
-    if (!selectedFile) return showToast("Pilih file terlebih dahulu", "error");
-    currentRenamePath = selectedFile;
-    document.getElementById("renameModal").style.display = "block";
-  }
-
-  function closeRenameModal() {
-    document.getElementById("renameModal").style.display = "none";
-    document.getElementById("newFileName").value = "";
-  }
-
-  async function confirmRename() {
-    const newName = getVal("newFileName");
-    const token = getVal("token");
-    const repo = getVal("repo");
-    const branch = getVal("branch");
-    const path = currentRenamePath;
-
-    if (!newName) return showToast("Nama baru tidak boleh kosong", "error");
-
-    try {
-      loading(true);
-      const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}?ref=${branch}`, {
-        headers: { Authorization: `token ${token}` }
-      });
-      const data = await res.json();
-      const sha = data.sha;
-      const folder = path.includes("/") ? path.substring(0, path.lastIndexOf("/")) : "";
-      const newPath = folder ? `${folder}/${newName}` : newName;
-
-      await fetch(`${GITHUB_API}/repos/${repo}/contents/${newPath}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `token ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: "Rename file",
-          content: data.content,
-          sha: sha
-        })
-      });
-
-      await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `token ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: "Menghapus file lama setelah rename",
-          sha: sha
-        })
-      });
-
-      showToast("File berhasil diganti nama", "success");
-      listFiles();
-      closeRenameModal();
-    } catch (e) {
-      showToast("Gagal mengganti nama file: " + e.message, "error");
-    } finally {
-      loading(false);
-    }
-  }
   
-  function openDeleteModal() {
-    const selectedFile = getVal("fileList");
-    if (!selectedFile) return showToast("Pilih file terlebih dahulu", "error");
-    document.getElementById("deleteFileName").innerText = selectedFile;
-    document.getElementById("deleteModal").style.display = "block";
-  }
+  <!-- Modal Delete -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeDeleteModal()" style="float: right; cursor: pointer; font-size: 24px;">&times;</span>
+      <h2>Confirm Delete</h2>
+      <p>Are you sure you want to delete <strong id="deleteTarget"></strong>?</p>
+      <div class="btn-group">
+        <button class="danger" onclick="confirmDelete()">Delete</button>
+        <button onclick="closeDeleteModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
 
-  function closeDeleteModal() {
-    document.getElementById("deleteModal").style.display = "none";
-    document.getElementById("deleteFileName").innerText = "";
-  }
-
-  async function confirmDelete() {
-    const token = getVal("token");
-    const repo = getVal("repo");
-    const branch = getVal("branch");
-    const path = document.getElementById("deleteFileName").innerText;
-
-    if (!token || !repo || !path) return showToast("Data tidak lengkap", "error");
-
-    try {
-      loading(true);
-      const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}?ref=${branch}`, {
-        headers: { Authorization: `token ${token}` }
-      });
-      const data = await res.json();
-      const sha = data.sha;
-
-      const delRes = await fetch(`${GITHUB_API}/repos/${repo}/contents/${path}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `token ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: `Hapus file ${path}`,
-          sha: sha
-        })
-      });
-
-      if (delRes.ok) {
-        showToast("File berhasil dihapus", "success");
-        closeDeleteModal();
-        listFiles();
-        document.getElementById("filePreview").style.display = "none";
-      } else {
-        const err = await delRes.json();
-        throw new Error(err.message || "Gagal menghapus");
-      }
-    } catch (e) {
-      showToast("Gagal menghapus: " + e.message, "error");
-    } finally {
-      loading(false);
-    }
-  }
-
-  async function createFolderInternal(token, repo, branch, folderPath) {
-    // Pisahkan path folder menjadi bagian-bagian
-    const folders = folderPath.split('/');
+  <script>
+    // Konfigurasi
+    const GITHUB_API = "https://api.github.com";
+    
+    // State aplikasi
+    let currentRepo = null;
+    let currentBranch = 'main';
     let currentPath = '';
+    let selectedFile = null;
+    let fileListData = [];
+    let authToken = '';
     
-    // Buat setiap subfolder secara berurutan
-    for (const folder of folders) {
-      currentPath = currentPath ? `${currentPath}/${folder}` : folder;
+    // Inisialisasi
+    document.addEventListener('DOMContentLoaded', () => {
+      // Coba load token dari localStorage
+      const savedToken = localStorage.getItem('github_token');
+      if (savedToken) {
+        document.getElementById('token').value = savedToken;
+        authenticate();
+      }
+      
+      // Setup event listeners
+      document.getElementById('authBtn').addEventListener('click', authenticate);
+      document.getElementById('initRepo').addEventListener('click', initializeRepo);
+      
+      // Load branches when repo changes
+      document.getElementById('repos').addEventListener('change', async (e) => {
+        if (e.target.value) {
+          await loadBranches(e.target.value);
+        }
+      });
+    });
+    
+    // Fungsi untuk menampilkan toast
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+    
+    // Fungsi untuk menampilkan loading
+    function showLoading(show) {
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(button => {
+        if (show) {
+          button.disabled = true;
+          if (!button.querySelector('.loading')) {
+            const loading = document.createElement('span');
+            loading.className = 'loading';
+            button.appendChild(loading);
+          }
+        } else {
+          button.disabled = false;
+          const loading = button.querySelector('.loading');
+          if (loading) loading.remove();
+        }
+      });
+    }
+    
+    // Fungsi untuk autentikasi
+    async function authenticate() {
+      const token = document.getElementById('token').value.trim();
+      if (!token) {
+        showToast('Please enter GitHub token', 'error');
+        return;
+      }
+      
+      authToken = token;
+      localStorage.setItem('github_token', token);
       
       try {
-        await fetch(`${GITHUB_API}/repos/${repo}/contents/${currentPath}/.keep`, {
-          method: "PUT",
+        showLoading(true);
+        const response = await fetch(`${GITHUB_API}/user`, {
           headers: {
-            Authorization: `token ${token}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: `Create folder ${currentPath}`,
-            content: btoa("folder placeholder"),
-            branch: branch
-          })
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
         });
-      } catch (e) {
-        // Abaikan error jika folder sudah ada
-        if (!e.message.includes("already exists")) {
-          throw new Error(`Gagal membuat folder ${currentPath}: ${e.message}`);
+        
+        if (!response.ok) {
+          throw new Error('Authentication failed - check your token');
         }
+        
+        document.getElementById('authBtn').textContent = 'Authenticated';
+        document.getElementById('repoSelector').style.display = 'block';
+        
+        // Load repositories
+        await loadRepositories();
+      } catch (error) {
+        showToast(`Authentication error: ${error.message}`, 'error');
+        console.error('Auth error:', error);
+      } finally {
+        showLoading(false);
       }
     }
-  }
-
-  async function createFolder() {
-    const folder = getVal("folderPath");
-    const name = getVal("newFolderName").replace(/\/+$/, '');
-    const fullPath = folder ? `${folder}/${name}` : name;
-    const token = getVal("token"), repo = getVal("repo"), branch = getVal("branch");
-    if (!name) return showToast("Nama folder wajib diisi", "error");
-
-    try {
-      loading(true);
-      await createFolderInternal(token, repo, branch, fullPath);
-      showToast("Folder berhasil dibuat", "success");
-      listFiles();
-    } catch (e) {
-      showToast("Gagal membuat folder: " + e.message, "error");
-    } finally {
-      loading(false);
+    
+    // Fungsi untuk load repositories
+    async function loadRepositories() {
+      try {
+        showLoading(true);
+        const response = await fetch(`${GITHUB_API}/user/repos?per_page=100`, {
+          headers: {
+            'Authorization': `token ${authToken}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to load repositories');
+        }
+        
+        const repos = await response.json();
+        const reposSelect = document.getElementById('repos');
+        
+        reposSelect.innerHTML = '';
+        repos.forEach(repo => {
+          const option = document.createElement('option');
+          option.value = repo.full_name;
+          option.textContent = repo.name;
+          reposSelect.appendChild(option);
+        });
+        
+        // Load branches untuk repo pertama
+        if (repos.length > 0) {
+          await loadBranches(repos[0].full_name);
+        }
+      } catch (error) {
+        showToast(`Error loading repos: ${error.message}`, 'error');
+        console.error('Repo load error:', error);
+      } finally {
+        showLoading(false);
+      }
     }
-  }
-
-  async function ensureFolderExists(token, repo, branch, folderPath) {
-    try {
-      // Cek apakah folder sudah ada
-      const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${folderPath}?ref=${branch}`, {
-        headers: { Authorization: `token ${token}` }
+    
+    // Fungsi untuk load branches
+    async function loadBranches(repo) {
+      try {
+        showLoading(true);
+        const response = await fetch(`${GITHUB_API}/repos/${repo}/branches`, {
+          headers: {
+            'Authorization': `token ${authToken}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to load branches');
+        }
+        
+        const branches = await response.json();
+        const branchSelect = document.getElementById('branches');
+        
+        branchSelect.innerHTML = '';
+        branches.forEach(branch => {
+          const option = document.createElement('option');
+          option.value = branch.name;
+          option.textContent = branch.name;
+          branchSelect.appendChild(option);
+        });
+      } catch (error) {
+        showToast(`Error loading branches: ${error.message}`, 'error');
+        console.error('Branch load error:', error);
+      } finally {
+        showLoading(false);
+      }
+    }
+    
+    // Fungsi untuk inisialisasi repo
+    async function initializeRepo() {
+      const repo = document.getElementById('repos').value;
+      const branch = document.getElementById('branches').value;
+      
+      if (!repo || !branch) {
+        showToast('Please select repository and branch', 'error');
+        return;
+      }
+      
+      currentRepo = repo;
+      currentBranch = branch;
+      currentPath = '';
+      
+      showToast(`Repository initialized: ${repo} (${branch})`);
+      await refreshFiles();
+    }
+    
+    // Fungsi untuk refresh file list
+    async function refreshFiles() {
+      if (!currentRepo) return;
+      
+      try {
+        showLoading(true);
+        const response = await fetch(
+          `${GITHUB_API}/repos/${currentRepo}/contents/${currentPath}?ref=${currentBranch}`, 
+          {
+            headers: {
+              'Authorization': `token ${authToken}`,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          }
+        );
+        
+        if (!response.ok) {
+          throw new Error('Failed to load contents');
+        }
+        
+        fileListData = await response.json();
+        renderFileList();
+        document.getElementById('currentPath').textContent = currentPath ? `/${currentPath}` : '/';
+      } catch (error) {
+        showToast(`Error loading files: ${error.message}`, 'error');
+        console.error('File load error:', error);
+      } finally {
+        showLoading(false);
+      }
+    }
+    
+    // Fungsi untuk render file list
+    function renderFileList() {
+      const fileListEl = document.getElementById('fileList');
+      fileListEl.innerHTML = currentPath ? 
+        '<div class="file-item folder" onclick="navigateUp()">📁 .. (Parent Directory)</div>' : 
+        '';
+      
+      // Sort folders first, then files
+      const sortedFiles = [...fileListData].sort((a, b) => {
+        if (a.type === b.type) return a.name.localeCompare(b.name);
+        return a.type === 'dir' ? -1 : 1;
       });
       
-      // Jika folder tidak ditemukan (status 404), buat folder baru
-      if (res.status === 404) {
-        await createFolderInternal(token, repo, branch, folderPath);
-      } else if (!res.ok) {
-        throw new Error("Gagal memeriksa folder");
-      }
-    } catch (e) {
-      throw new Error("Gagal memverifikasi folder: " + e.message);
-    }
-  }
-
-  async function createFile() {
-    const fileName = getVal("newFileInput");
-    const content = getVal("newFileContent");
-    const token = getVal("token");
-    const repo = getVal("repo");
-    const branch = getVal("branch");
-    const folderPath = getVal("newFileFolder");
-
-    if (!fileName || !content) return showToast("Nama file dan isi wajib diisi", "error");
-
-    try {
-      loading(true);
-      
-      // Jika folderPath diisi, pastikan folder tersebut ada
-      if (folderPath) {
-        await ensureFolderExists(token, repo, branch, folderPath);
-      }
-
-      const filePath = folderPath ? `${folderPath}/${fileName}` : fileName;
-      
-      const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${filePath}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `token ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: `Create file ${fileName}`,
-          content: btoa(content),
-          branch: branch
-        })
+      sortedFiles.forEach(item => {
+        const fileItem = document.createElement('div');
+        fileItem.className = `file-item ${item.type === 'dir' ? 'folder' : 'file'}`;
+        fileItem.innerHTML = `${item.type === 'dir' ? '📁' : '📄'} ${item.name}`;
+        fileItem.onclick = () => selectFile(item);
+        fileListEl.appendChild(fileItem);
       });
-
-      if (res.ok) {
-        showToast("File berhasil dibuat", "success");
-        listFiles();
-        document.getElementById("newFileInput").value = "";
-        document.getElementById("newFileContent").value = "";
-      } else {
-        const error = await res.json();
-        throw new Error(error.message);
-      }
-    } catch (e) {
-      showToast("Gagal membuat file: " + e.message, "error");
-    } finally {
-      loading(false);
     }
-  }
-
-  async function uploadFiles(overwrite = false) {
-    const files = document.getElementById("fileUpload").files;
-    const token = getVal("token");
-    const repo = getVal("repo");
-    const branch = getVal("branch");
-    const path = getVal("folderPath");
-
-    if (!token || !repo || files.length === 0) return showToast("Token, repo, dan file wajib diisi", "error");
-
-    loading(true);
-    try {
-      for (let file of files) {
-        const reader = new FileReader();
-        const fileName = file.name;
-        await new Promise((resolve, reject) => {
-          reader.onload = async () => {
-            const base64 = reader.result.split(',')[1];
-            const filePath = path ? `${path}/${fileName}` : fileName;
-
+    
+    // Fungsi untuk select file
+    function selectFile(file) {
+      // Remove previous selection
+      document.querySelectorAll('.file-item').forEach(el => {
+        el.classList.remove('selected');
+      });
+      
+      // Add selection to clicked item
+      event.currentTarget.classList.add('selected');
+      selectedFile = file;
+      
+      // Hide edit box when selecting new file
+      document.getElementById('editBox').style.display = 'none';
+      document.getElementById('filePreview').style.display = 'block';
+      
+      // If directory, navigate into it
+      if (file.type === 'dir') {
+        currentPath = currentPath ? `${currentPath}/${file.name}` : file.name;
+        refreshFiles();
+      }
+    }
+    
+    // Fungsi untuk navigate up
+    function navigateUp() {
+      if (!currentPath) return;
+      
+      const pathParts = currentPath.split('/');
+      pathParts.pop();
+      currentPath = pathParts.join('/');
+      refreshFiles();
+    }
+    
+    // Fungsi untuk preview file
+    async function previewFile() {
+      if (!selectedFile || selectedFile.type === 'dir') {
+        showToast('Please select a file to preview', 'error');
+        return;
+      }
+      
+      try {
+        showLoading(true);
+        const response = await fetch(
+          `${GITHUB_API}/repos/${currentRepo}/contents/${selectedFile.path}?ref=${currentBranch}`, 
+          {
+            headers: {
+              'Authorization': `token ${authToken}`,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          }
+        );
+        
+        if (!response.ok) {
+          throw new Error('Failed to load file content');
+        }
+        
+        const fileData = await response.json();
+        const content = atob(fileData.content.replace(/\s/g, ''));
+        
+        document.getElementById('filePreview').textContent = content;
+        document.getElementById('filePreview').style.display = 'block';
+        document.getElementById('editBox').style.display = 'none';
+      } catch (error) {
+        showToast(`Error previewing file: ${error.message}`, 'error');
+        console.error('Preview error:', error);
+      } finally {
+        showLoading(false);
+      }
+    }
+    
+    // Fungsi untuk edit file
+    async function editFile() {
+      if (!selectedFile || selectedFile.type === 'dir') {
+        showToast('Please select a file to edit', 'error');
+        return;
+      }
+      
+      try {
+        showLoading(true);
+        const response = await fetch(
+          `${GITHUB_API}/repos/${currentRepo}/contents/${selectedFile.path}?ref=${currentBranch}`, 
+          {
+            headers: {
+              'Authorization': `token ${authToken}`,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          }
+        );
+        
+        if (!response.ok) {
+          throw new Error('Failed to load file content');
+        }
+        
+        const fileData = await response.json();
+        const content = atob(fileData.content.replace(/\s/g, ''));
+        
+        document.getElementById('fileContent').value = content;
+        document.getElementById('filePath').value = selectedFile.path;
+        document.getElementById('filePreview').style.display = 'none';
+        document.getElementById('editBox').style.display = 'block';
+      } catch (error) {
+        showToast(`Error loading file for edit: ${error.message}`, 'error');
+        console.error('Edit load error:', error);
+      } finally {
+        showLoading(false);
+      }
+    }
+    
+    // Fungsi untuk save file
+    async function saveFile() {
+      const content = document.getElementById('fileContent').value;
+      const path = document.getElementById('filePath').value;
+      
+      if (!content || !path) {
+        showToast('Content and path are required', 'error');
+        return;
+      }
+      
+      try {
+        showLoading(true);
+        
+        // Get the current file SHA first
+        const getResponse = await fetch(
+          `${GITHUB_API}/repos/${currentRepo}/contents/${path}?ref=${currentBranch}`, 
+          {
+            headers: {
+              'Authorization': `token ${authToken}`,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          }
+        );
+        
+        if (!getResponse.ok) {
+          throw new Error('Failed to get file info for update');
+        }
+        
+        const fileData = await getResponse.json();
+        
+        // Now update the file
+        const response = await fetch(
+          `${GITHUB_API}/repos/${currentRepo}/contents/${path}`, 
+          {
+            method: 'PUT',
+            headers: {
+              'Authorization': `token ${authToken}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: `Update ${path.split('/').pop()}`,
+              content: btoa(content),
+              branch: currentBranch,
+              sha: fileData.sha
+            })
+          }
+        );
+        
+        if (!response.ok) {
+          throw new Error('Failed to save file');
+        }
+        
+        showToast('File saved successfully');
+        cancelEdit();
+        refreshFiles();
+      } catch (error) {
+        showToast(`Error saving file: ${error.message}`, 'error');
+        console.error('Save error:', error);
+      } finally {
+        showLoading(false);
+      }
+    }
+    
+    // Fungsi untuk cancel edit
+    function cancelEdit() {
+      document.getElementById('editBox').style.display = 'none';
+      document.getElementById('filePreview').style.display = 'block';
+      document.getElementById('fileContent').value = '';
+    }
+    
+    // Fungsi untuk upload files
+    async function startUpload(overwrite) {
+      const files = document.getElementById('fileUpload').files;
+      if (files.length === 0) {
+        showToast('Please select files to upload', 'error');
+        return;
+      }
+      
+      const progressBar = document.getElementById('uploadProgress');
+      const statusText = document.getElementById('uploadStatus');
+      
+      progressBar.style.display = 'block';
+      statusText.style.display = 'block';
+      progressBar.value = 0;
+      statusText.textContent = 'Preparing upload...';
+      
+      try {
+        showLoading(true);
+        
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const filePath = currentPath ? `${currentPath}/${file.name}` : file.name;
+          
+          statusText.textContent = `Uploading ${file.name} (${i+1}/${files.length})...`;
+          
+          // Check if file exists if not overwriting
+          let sha = null;
+          if (!overwrite) {
             try {
-              // Check if file exists if we're not overwriting
-              if (!overwrite) {
-                const checkRes = await fetch(`${GITHUB_API}/repos/${repo}/contents/${filePath}?ref=${branch}`, {
-                  headers: { Authorization: `token ${token}` }
-                });
-                if (checkRes.ok) {
-                  showToast(`File ${fileName} sudah ada. Gunakan "Upload & Timpa" untuk menggantinya.`, "error");
-                  return resolve();
-                }
-              }
-
-              // Get SHA if file exists (for overwrite)
-              let sha = null;
-              if (overwrite) {
-                try {
-                  const shaRes = await fetch(`${GITHUB_API}/repos/${repo}/contents/${filePath}?ref=${branch}`, {
-                    headers: { Authorization: `token ${token}` }
-                  });
-                  if (shaRes.ok) {
-                    const shaData = await shaRes.json();
-                    sha = shaData.sha;
+              const checkResponse = await fetch(
+                `${GITHUB_API}/repos/${currentRepo}/contents/${filePath}?ref=${currentBranch}`, 
+                {
+                  headers: {
+                    'Authorization': `token ${authToken}`,
+                    'Accept': 'application/vnd.github.v3+json'
                   }
-                } catch (e) {
-                  // File doesn't exist yet, proceed without SHA
                 }
+              );
+              
+              if (checkResponse.ok) {
+                const fileData = await checkResponse.json();
+                sha = fileData.sha;
+                statusText.textContent = `Skipping ${file.name} (already exists)`;
+                continue;
               }
-
-              const uploadRes = await fetch(`${GITHUB_API}/repos/${repo}/contents/${filePath}`, {
-                method: "PUT",
+            } catch (e) {
+              // File doesn't exist, proceed with upload
+            }
+          } else {
+            // Get SHA for overwrite
+            try {
+              const checkResponse = await fetch(
+                `${GITHUB_API}/repos/${currentRepo}/contents/${filePath}?ref=${currentBranch}`, 
+                {
+                  headers: {
+                    'Authorization': `token ${authToken}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                  }
+                }
+              );
+              
+              if (checkResponse.ok) {
+                const fileData = await checkResponse.json();
+                sha = fileData.sha;
+              }
+            } catch (e) {
+              // File doesn't exist, proceed with upload without SHA
+            }
+          }
+          
+          const reader = new FileReader();
+          reader.onload = async function(e) {
+            const content = e.target.result.split(',')[1]; // Get base64 part
+            
+            const response = await fetch(
+              `${GITHUB_API}/repos/${currentRepo}/contents/${filePath}`, 
+              {
+                method: 'PUT',
                 headers: {
-                  Authorization: `token ${token}`,
-                  "Content-Type": "application/json"
+                  'Authorization': `token ${authToken}`,
+                  'Accept': 'application/vnd.github.v3+json',
+                  'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                  message: `Upload ${fileName}`,
-                  content: base64,
-                  branch: branch,
-                  ...(sha && { sha: sha }) // Include SHA if we're overwriting
+                  message: `Upload ${file.name}`,
+                  content: content,
+                  branch: currentBranch,
+                  sha: sha
                 })
-              });
-
-              if (!uploadRes.ok) {
-                const error = await uploadRes.json();
-                showToast(`Gagal upload ${fileName}: ${error.message}`, "error");
-                return reject();
               }
-
-              showToast(`File ${fileName} berhasil diupload`, "success");
-              resolve();
-            } catch (e) {
-              showToast(`Gagal upload ${fileName}: ${e.message}`, "error");
-              reject();
+            );
+            
+            if (!response.ok) {
+              throw new Error(`Failed to upload ${file.name}`);
             }
+            
+            progressBar.value = ((i + 1) / files.length) * 100;
+            statusText.textContent = `Uploaded ${file.name} (${i+1}/${files.length})`;
           };
-          reader.onerror = reject;
+          
           reader.readAsDataURL(file);
-        });
+          await new Promise(resolve => setTimeout(resolve, 500)); // Small delay between files
+        }
+        
+        showToast(`Uploaded ${files.length} file(s) successfully`);
+        refreshFiles();
+      } catch (error) {
+        showToast(`Error uploading files: ${error.message}`, 'error');
+        console.error('Upload error:', error);
+      } finally {
+        showLoading(false);
+        setTimeout(() => {
+          progressBar.style.display = 'none';
+          statusText.style.display = 'none';
+        }, 3000);
       }
-      listFiles();
-    } catch (e) {
-      showToast("Gagal mengupload file: " + e.message, "error");
-    } finally {
-      loading(false);
     }
-  }
-
-  // Folder Operations
-  function openDeleteFolderModal() {
-    const folderPath = getVal("targetFolder");
-    if (!folderPath) return showToast("Masukkan path folder terlebih dahulu", "error");
-    document.getElementById("deleteFolderPath").innerText = folderPath;
-    document.getElementById("deleteFolderModal").style.display = "block";
-  }
-
-  function closeDeleteFolderModal() {
-    document.getElementById("deleteFolderModal").style.display = "none";
-    document.getElementById("deleteFolderPath").innerText = "";
-  }
-
-  async function confirmDeleteFolder() {
-    const token = getVal("token");
-    const repo = getVal("repo");
-    const branch = getVal("branch");
-    const folderPath = document.getElementById("deleteFolderPath").innerText;
-
-    try {
-      loading(true);
-      // First get all files in the folder
-      const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${folderPath}?ref=${branch}`, {
-        headers: { Authorization: `token ${token}` }
-      });
-      const files = await res.json();
-
-      // Delete each file in the folder
-      for (const file of files) {
-        await fetch(`${GITHUB_API}/repos/${repo}/contents/${file.path}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `token ${token}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: `Hapus ${file.path} sebagai bagian dari penghapusan folder`,
-            sha: file.sha,
-            branch: branch
-          })
-        });
+    
+    // Fungsi untuk create file
+    async function createFile() {
+      const name = document.getElementById('newName').value.trim();
+      const content = document.getElementById('newContent').value;
+      
+      if (!name) {
+        showToast('Please enter a file name', 'error');
+        return;
       }
-
-      // Also delete the .keep file if it exists
+      
       try {
-        const keepRes = await fetch(`${GITHUB_API}/repos/${repo}/contents/${folderPath}/.keep?ref=${branch}`, {
-          headers: { Authorization: `token ${token}` }
-        });
-        if (keepRes.ok) {
-          const keepData = await keepRes.json();
-          await fetch(`${GITHUB_API}/repos/${repo}/contents/${folderPath}/.keep`, {
-            method: "DELETE",
+        showLoading(true);
+        const filePath = currentPath ? `${currentPath}/${name}` : name;
+        
+        const response = await fetch(
+          `${GITHUB_API}/repos/${currentRepo}/contents/${filePath}`, 
+          {
+            method: 'PUT',
             headers: {
-              Authorization: `token ${token}`,
-              "Content-Type": "application/json"
+              'Authorization': `token ${authToken}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              message: `Hapus .keep file sebagai bagian dari penghapusan folder`,
-              sha: keepData.sha,
-              branch: branch
+              message: `Create ${name}`,
+              content: btoa(content),
+              branch: currentBranch
             })
-          });
+          }
+        );
+        
+        if (!response.ok) {
+          throw new Error('Failed to create file');
         }
-      } catch (e) {
-        // .keep file doesn't exist, ignore
+        
+        showToast('File created successfully');
+        document.getElementById('newName').value = '';
+        document.getElementById('newContent').value = '';
+        refreshFiles();
+      } catch (error) {
+        showToast(`Error creating file: ${error.message}`, 'error');
+        console.error('Create file error:', error);
+      } finally {
+        showLoading(false);
       }
-
-      showToast("Folder dan semua isinya berhasil dihapus", "success");
-      closeDeleteFolderModal();
-      listFiles();
-    } catch (e) {
-      showToast("Gagal menghapus folder: " + e.message, "error");
-    } finally {
-      loading(false);
     }
-  }
-
-  function openDeleteFilesInFolderModal() {
-    const folderPath = getVal("targetFolder");
-    if (!folderPath) return showToast("Masukkan path folder terlebih dahulu", "error");
-    document.getElementById("deleteFilesInFolderPath").innerText = folderPath;
-    document.getElementById("deleteFilesInFolderModal").style.display = "block";
-  }
-
-  function closeDeleteFilesInFolderModal() {
-    document.getElementById("deleteFilesInFolderModal").style.display = "none";
-    document.getElementById("deleteFilesInFolderPath").innerText = "";
-  }
-
-  async function confirmDeleteFilesInFolder() {
-    const token = getVal("token");
-    const repo = getVal("repo");
-    const branch = getVal("branch");
-    const folderPath = document.getElementById("deleteFilesInFolderPath").innerText;
-
-    try {
-      loading(true);
-      // First get all files in the folder
-      const res = await fetch(`${GITHUB_API}/repos/${repo}/contents/${folderPath}?ref=${branch}`, {
-        headers: { Authorization: `token ${token}` }
-      });
-      const files = await res.json();
-
-      // Delete each file in the folder (but not subfolders)
-      for (const file of files) {
-        if (file.type === "file") {
-          await fetch(`${GITHUB_API}/repos/${repo}/contents/${file.path}`, {
-            method: "DELETE",
+    
+    // Fungsi untuk create folder
+    async function createFolder() {
+      const name = document.getElementById('newName').value.trim();
+      
+      if (!name) {
+        showToast('Please enter a folder name', 'error');
+        return;
+      }
+      
+      try {
+        showLoading(true);
+        const folderPath = currentPath ? `${currentPath}/${name}` : name;
+        
+        // Create a dummy file in the folder (GitHub doesn't support empty folders)
+        const response = await fetch(
+          `${GITHUB_API}/repos/${currentRepo}/contents/${folderPath}/.gitkeep`, 
+          {
+            method: 'PUT',
             headers: {
-              Authorization: `token ${token}`,
-              "Content-Type": "application/json"
+              'Authorization': `token ${authToken}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              message: `Hapus ${file.path} sebagai bagian dari penghapusan file dalam folder`,
-              sha: file.sha,
-              branch: branch
+              message: `Create folder ${name}`,
+              content: btoa(''),
+              branch: currentBranch
             })
-          });
+          }
+        );
+        
+        if (!response.ok) {
+          throw new Error('Failed to create folder');
         }
+        
+        showToast('Folder created successfully');
+        document.getElementById('newName').value = '';
+        document.getElementById('newContent').value = '';
+        refreshFiles();
+      } catch (error) {
+        showToast(`Error creating folder: ${error.message}`, 'error');
+        console.error('Create folder error:', error);
+      } finally {
+        showLoading(false);
       }
-
-      showToast("Semua file dalam folder berhasil dihapus", "success");
-      closeDeleteFilesInFolderModal();
-      listFiles();
-    } catch (e) {
-      showToast("Gagal menghapus file dalam folder: " + e.message, "error");
-    } finally {
-      loading(false);
     }
-  }
-
-  async function commitChanges() {
-    const token = getVal("token");
-    const repo = getVal("repo");
-    const branch = getVal("branch");
-    const message = getVal("commitMessage");
-
-    if (!message) return showToast("Pesan commit wajib diisi", "error");
-
-    try {
-      loading(true);
-      // Get the latest commit SHA
-      const commitRes = await fetch(`${GITHUB_API}/repos/${repo}/git/refs/heads/${branch}`, {
-        headers: { Authorization: `token ${token}` }
-      });
-      const commitData = await commitRes.json();
-      const commitSha = commitData.object.sha;
-
-      // Create a new commit with the same tree (no changes)
-      const newCommitRes = await fetch(`${GITHUB_API}/repos/${repo}/git/commits`, {
-        method: "POST",
-        headers: {
-          Authorization: `token ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: message,
-          tree: commitData.object.sha,
-          parents: [commitSha]
-        })
-      });
-
-      if (!newCommitRes.ok) {
-        const error = await newCommitRes.json();
-        throw new Error(error.message);
+    
+    // Fungsi untuk open rename modal
+    function openRenameModal() {
+      if (!selectedFile) {
+        showToast('Please select a file/folder to rename', 'error');
+        return;
       }
-
-      showToast("Commit berhasil dibuat", "success");
-      document.getElementById("commitMessage").value = "";
-    } catch (e) {
-      showToast("Gagal membuat commit: " + e.message, "error");
-    } finally {
-      loading(false);
+      
+      document.getElementById('newFileName').value = selectedFile.name;
+      document.getElementById('renameModal').style.display = 'flex';
     }
-  }
-</script>
+    
+    // Fungsi untuk close rename modal
+    function closeRenameModal() {
+      document.getElementById('renameModal').style.display = 'none';
+    }
+    
+    // Fungsi untuk confirm rename
+    async function confirmRename() {
+      const newName = document.getElementById('newFileName').value.trim();
+      
+      if (!newName) {
+        showToast('Please enter a new name', 'error');
+        return;
+      }
+      
+      if (!selectedFile) {
+        showToast('No file selected', 'error');
+        return;
+      }
+      
+      try {
+        showLoading(true);
+        const oldPath = selectedFile.path;
+        const newPath = oldPath.split('/').slice(0, -1).concat(newName).join('/');
+        
+        if (selectedFile.type === 'file') {
+          // Get current file content
+          const getResponse = await fetch(
+            `${GITHUB_API}/repos/${currentRepo}/contents/${oldPath}?ref=${currentBranch}`, 
+            {
+              headers: {
+                'Authorization': `token ${authToken}`,
+                'Accept': 'application/vnd.github.v3+json'
+              }
+            }
+          );
+          
+          if (!getResponse.ok) {
+            throw new Error('Failed to get file for rename');
+          }
+          
+          const fileData = await getResponse.json();
+          const content = atob(fileData.content.replace(/\s/g, ''));
+          
+          // Create new file
+          const createResponse = await fetch(
+            `${GITHUB_API}/repos/${currentRepo}/contents/${newPath}`, 
+            {
+              method: 'PUT',
+              headers: {
+                'Authorization': `token ${authToken}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: `Rename ${oldPath.split('/').pop()} to ${newName}`,
+                content: btoa(content),
+                branch: currentBranch
+              })
+            }
+          );
+          
+          if (!createResponse.ok) {
+            throw new Error('Failed to create new file');
+          }
+          
+          // Delete old file
+          const deleteResponse = await fetch(
+            `${GITHUB_API}/repos/${currentRepo}/contents/${oldPath}`, 
+            {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `token ${authToken}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: `Rename ${oldPath.split('/').pop()} to ${newName}`,
+                sha: fileData.sha,
+                branch: currentBranch
+              })
+            }
+          );
+          
+          if (!deleteResponse.ok) {
+            throw new Error('Failed to delete old file');
+          }
+        } else if (selectedFile.type === 'dir') {
+          // For directories, we need to move all files recursively
+          // This is more complex and would require multiple API calls
+          // For simplicity, we'll just create a new folder and let the user move files manually
+          const createResponse = await fetch(
+            `${GITHUB_API}/repos/${currentRepo}/contents/${newPath}/.gitkeep`, 
+            {
+              method: 'PUT',
+              headers: {
+                'Authorization': `token ${authToken}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: `Create folder ${newName}`,
+                content: btoa(''),
+                branch: currentBranch
+              })
+            }
+          );
+          
+          if (!createResponse.ok) {
+            throw new Error('Failed to create new folder');
+          }
+          
+          showToast('Created new folder. Please move files manually as GitHub doesn\'t support direct folder renaming.', 'success');
+        }
+        
+        showToast('Rename successful');
+        closeRenameModal();
+        refreshFiles();
+      } catch (error) {
+        showToast(`Error renaming: ${error.message}`, 'error');
+        console.error('Rename error:', error);
+      } finally {
+        showLoading(false);
+      }
+    }
+    
+    // Fungsi untuk open delete modal
+    function openDeleteModal() {
+      if (!selectedFile) {
+        showToast('Please select a file/folder to delete', 'error');
+        return;
+      }
+      
+      document.getElementById('deleteTarget').textContent = selectedFile.name;
+      document.getElementById('deleteModal').style.display = 'flex';
+    }
+    
+    // Fungsi untuk close delete modal
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').style.display = 'none';
+    }
+    
+    // Fungsi untuk confirm delete
+    async function confirmDelete() {
+      if (!selectedFile) {
+        showToast('No file selected', 'error');
+        return;
+      }
+      
+      try {
+        showLoading(true);
+        
+        if (selectedFile.type === 'file') {
+          // Get file SHA first
+          const getResponse = await fetch(
+            `${GITHUB_API}/repos/${currentRepo}/contents/${selectedFile.path}?ref=${currentBranch}`, 
+            {
+              headers: {
+                'Authorization': `token ${authToken}`,
+                'Accept': 'application/vnd.github.v3+json'
+              }
+            }
+          );
+          
+          if (!getResponse.ok) {
+            throw new Error('Failed to get file for deletion');
+          }
+          
+          const fileData = await getResponse.json();
+          
+          // Delete file
+          const response = await fetch(
+            `${GITHUB_API}/repos/${currentRepo}/contents/${selectedFile.path}`, 
+            {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `token ${authToken}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: `Delete ${selectedFile.name}`,
+                sha: fileData.sha,
+                branch: currentBranch
+              })
+            }
+          );
+          
+          if (!response.ok) {
+            throw new Error('Failed to delete file');
+          }
+        } else if (selectedFile.type === 'dir') {
+          // For directories, we would need to delete all files recursively
+          // This is complex, so we'll just delete the .gitkeep file if it exists
+          try {
+            const getResponse = await fetch(
+              `${GITHUB_API}/repos/${currentRepo}/contents/${selectedFile.path}/.gitkeep?ref=${currentBranch}`, 
+              {
+                headers: {
+                  'Authorization': `token ${authToken}`,
+                  'Accept': 'application/vnd.github.v3+json'
+                }
+              }
+            );
+            
+            if (getResponse.ok) {
+              const fileData = await getResponse.json();
+              
+              const response = await fetch(
+                `${GITHUB_API}/repos/${currentRepo}/contents/${selectedFile.path}/.gitkeep`, 
+                {
+                  method: 'DELETE',
+                  headers: {
+                    'Authorization': `token ${authToken}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    message: `Delete folder ${selectedFile.name}`,
+                    sha: fileData.sha,
+                    branch: currentBranch
+                  })
+                }
+              );
+              
+              if (!response.ok) {
+                throw new Error('Failed to delete folder');
+              }
+            } else {
+              throw new Error('Folder is not empty. Please delete files manually first.');
+            }
+          } catch (e) {
+            throw new Error('Folder is not empty. Please delete files manually first.');
+          }
+        }
+        
+        showToast('Deleted successfully');
+        closeDeleteModal();
+        refreshFiles();
+      } catch (error) {
+        showToast(`Error deleting: ${error.message}`, 'error');
+        console.error('Delete error:', error);
+      } finally {
+        showLoading(false);
+      }
+    }
+  </script>
 </body>
 </html>
