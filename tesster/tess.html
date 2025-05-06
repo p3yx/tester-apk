@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp-like P2P Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #128C7E;
+            --primary-dark: #075E54;
+            --secondary-color: #25D366;
+            --background-dark: #0D1418;
+            --background-darker: #090E11;
+            --chat-dark: #1E2A30;
+            --chat-darker: #172127;
+            --text-light: #E7E9EA;
+            --text-lighter: #FFFFFF;
+            --text-gray: #8696A0;
+            --incoming-msg: #262D31;
+            --outgoing-msg: #056162;
+            --icon-color: #AEBAC1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--chat-darker);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(134, 150, 160, 0.15);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            font-size: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .contact-info h3 {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .contact-info p {
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-icon {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            font-size: 20px;
+            margin-left: 20px;
+            cursor: pointer;
+        }
+
+        /* Chat area */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-image: url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png');
+            background-repeat: repeat;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            border-radius: 7.5px;
+            position: relative;
+            word-wrap: break-word;
+            font-size: 14.2px;
+            line-height: 19px;
+        }
+
+        .incoming {
+            background-color: var(--incoming-msg);
+            align-self: flex-start;
+            border-top-left-radius: 0;
+        }
+
+        .outgoing {
+            background-color: var(--outgoing-msg);
+            align-self: flex-end;
+            border-top-right-radius: 0;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--text-gray);
+            float: right;
+            margin-left: 10px;
+            margin-top: 5px;
+        }
+
+        /* Input area */
+        .input-container {
+            background-color: var(--chat-darker);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid rgba(134, 150, 160, 0.15);
+        }
+
+        .emoji-button, .attach-button, .voice-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            font-size: 24px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+
+        .voice-button {
+            margin-right: 0;
+            margin-left: 15px;
+        }
+
+        .message-input {
+            flex: 1;
+            background-color: var(--chat-dark);
+            border: none;
+            border-radius: 8px;
+            padding: 9px 12px;
+            color: var(--text-light);
+            font-size: 15px;
+            outline: none;
+            resize: none;
+            max-height: 100px;
+        }
+
+        .send-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+
+        /* Connection status */
+        .status-bar {
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-icon {
+            margin-right: 8px;
+        }
+
+        /* QR Code modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--chat-darker);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-title {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: var(--text-light);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .modal-button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .modal-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .modal-secondary {
+            background-color: var(--chat-dark);
+            color: var(--text-light);
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        #qrcode img {
+            width: 200px;
+            height: 200px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .message {
+                max-width: 85%;
+            }
+            
+            .header-icon {
+                margin-left: 10px;
+            }
+            
+            .emoji-button, .attach-button, .voice-button {
+                margin-right: 10px;
+                font-size: 20px;
+            }
+
+            .modal-content {
+                padding: 20px 15px;
+            }
+
+            #qrcode img {
+                width: 180px;
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div>
+                <i class="fas fa-circle status-icon" id="connection-icon"></i>
+                <span id="connection-status">Menunggu koneksi...</span>
+            </div>
+            <div id="peer-id-display"></div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <button class="back-button" id="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="profile-pic" id="profile-pic">P2P</div>
+                <div class="contact-info">
+                    <h3>Peer Chat</h3>
+                    <p id="contact-status">Offline</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="header-icon" id="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="header-icon" id="menu-button">
+                    <i class="fas fa-ellipsis-vertical"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-container" id="chat-container">
+            <!-- Messages will appear here -->
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-container">
+            <button class="emoji-button" id="emoji-button">
+                <i class="far fa-smile"></i>
+            </button>
+            <button class="attach-button" id="attach-button">
+                <i class="fas fa-paperclip"></i>
+            </button>
+            <input type="text" class="message-input" id="message-input" placeholder="Ketik pesan">
+            <button class="send-button" id="send-button">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div class="modal" id="qr-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Scan QR Code untuk terhubung</h3>
+            <div id="qrcode"></div>
+            <div class="modal-actions">
+                <button class="modal-button modal-secondary" id="copy-link-button">
+                    <i class="fas fa-copy"></i> Salin Link
+                </button>
+                <button class="modal-button modal-primary" id="scan-button">
+                    <i class="fas fa-qrcode"></i> Scan QR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Info Modal -->
+    <div class="modal" id="info-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Informasi Koneksi</h3>
+            <div style="text-align: left; margin: 15px 0;">
+                <p><strong>Status:</strong> <span id="info-status">Menunggu koneksi...</span></p>
+                <p><strong>ID Peer:</strong> <span id="info-peer-id"></span></p>
+                <p><strong>Terhubung dengan:</strong> <span id="info-remote-peer">Tidak ada</span></p>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-button modal-secondary" id="close-info-button">
+                    Tutup
+                </button>
+                <button class="modal-button modal-primary" id="new-connection-button">
+                    Koneksi Baru
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variabel global
+        let peerConnection;
+        let dataChannel;
+        let localPeerId = generatePeerId();
+        let remotePeerId = null;
+        let iceCandidates = [];
+        let isConnected = false;
+        let connectionData = null;
+        
+        // Elemen UI
+        const chatContainer = document.getElementById('chat-container');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const qrModal = document.getElementById('qr-modal');
+        const infoModal = document.getElementById('info-modal');
+        const connectionStatus = document.getElementById('connection-status');
+        const connectionIcon = document.getElementById('connection-icon');
+        const contactStatus = document.getElementById('contact-status');
+        const peerIdDisplay = document.getElementById('peer-id-display');
+        const profilePic = document.getElementById('profile-pic');
+        const menuButton = document.getElementById('menu-button');
+        const backButton = document.getElementById('back-button');
+        const searchButton = document.getElementById('search-button');
+        const emojiButton = document.getElementById('emoji-button');
+        const attachButton = document.getElementById('attach-button');
+        const copyLinkButton = document.getElementById('copy-link-button');
+        const scanButton = document.getElementById('scan-button');
+        const closeInfoButton = document.getElementById('close-info-button');
+        const newConnectionButton = document.getElementById('new-connection-button');
+        
+        // Generate random peer ID
+        function generatePeerId() {
+            return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        }
+        
+        // Tampilkan QR Code untuk koneksi
+        function showQRCode(data) {
+            const qr = qrcode(0, 'L');
+            qr.addData(data);
+            qr.make();
+            document.getElementById('qrcode').innerHTML = qr.createImgTag(4);
+            qrModal.style.display = 'flex';
+        }
+        
+        // Update status koneksi
+        function updateConnectionStatus(status, isError = false) {
+            connectionStatus.textContent = status;
+            document.getElementById('info-status').textContent = status;
+            
+            if (isError) {
+                connectionIcon.className = 'fas fa-times-circle status-icon';
+                connectionIcon.style.color = '#f44336';
+                isConnected = false;
+                contactStatus.textContent = 'Offline';
+            } else if (status.includes('Terhubung')) {
+                connectionIcon.className = 'fas fa-check-circle status-icon';
+                connectionIcon.style.color = '#4CAF50';
+                isConnected = true;
+                contactStatus.textContent = 'Online';
+            } else {
+                connectionIcon.className = 'fas fa-circle status-icon';
+                connectionIcon.style.color = '#FFC107';
+                isConnected = false;
+                contactStatus.textContent = 'Menghubungkan...';
+            }
+        }
+        
+        // Inisialisasi koneksi WebRTC
+        async function initializeConnection(initiator = false) {
+            try {
+                updateConnectionStatus('Membuat koneksi...');
+                
+                peerConnection = new RTCPeerConnection({
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                });
+                
+                if (initiator) {
+                    dataChannel = peerConnection.createDataChannel('chat');
+                    setupDataChannel(dataChannel);
+                } else {
+                    peerConnection.ondatachannel = (event) => {
+                        dataChannel = event.channel;
+                        setupDataChannel(dataChannel);
+                    };
+                }
+                
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        iceCandidates.push(event.candidate);
+                        updateQRCode();
+                    }
+                };
+                
+                peerConnection.oniceconnectionstatechange = () => {
+                    if (peerConnection.iceConnectionState === 'disconnected') {
+                        updateConnectionStatus('Terputus', true);
+                    }
+                };
+                
+                if (initiator) {
+                    const offer = await peerConnection.createOffer();
+                    await peerConnection.setLocalDescription(offer);
+                    updateConnectionStatus('Menunggu penerimaan...');
+                    
+                    // Simpan data koneksi untuk dibagikan
+                    connectionData = {
+                        peerId: localPeerId,
+                        sdp: peerConnection.localDescription,
+                        candidates: iceCandidates
+                    };
+                    
+                    showQRCode(JSON.stringify(connectionData));
+                }
+                
+                peerIdDisplay.textContent = `ID Anda: ${localPeerId.substring(0, 8)}`;
+                document.getElementById('info-peer-id').textContent = localPeerId;
+            } catch (error) {
+                console.error('Error initializing connection:', error);
+                updateConnectionStatus('Error: ' + error.message, true);
+            }
+        }
+        
+        // Setup data channel
+        function setupDataChannel(channel) {
+            channel.onopen = () => {
+                updateConnectionStatus('Terhubung');
+                addSystemMessage('Koneksi berhasil dibuat. Anda sekarang dapat mengirim pesan.');
+            };
+            
+            channel.onclose = () => {
+                updateConnectionStatus('Terputus', true);
+                addSystemMessage('Koneksi terputus.');
+            };
+            
+            channel.onmessage = (event) => {
+                addMessageToChat(event.data, 'incoming');
+            };
+        }
+        
+        // Tambahkan pesan ke chat UI
+        function addMessageToChat(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', type);
+            
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                ${message}
+                <span class="message-time">${time}</span>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Tambahkan pesan sistem
+        function addSystemMessage(message) {
+            const systemDiv = document.createElement('div');
+            systemDiv.style.textAlign = 'center';
+            systemDiv.style.margin = '10px 0';
+            systemDiv.style.color = 'var(--text-gray)';
+            systemDiv.style.fontSize = '13px';
+            systemDiv.textContent = message;
+            chatContainer.appendChild(systemDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Kirim pesan
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message && dataChannel && dataChannel.readyState === 'open') {
+                dataChannel.send(message);
+                addMessageToChat(message, 'outgoing');
+                messageInput.value = '';
+            }
+        }
+        
+        // Event listeners
+        menuButton.addEventListener('click', () => {
+            infoModal.style.display = 'flex';
+        });
+        
+        backButton.addEventListener('click', () => {
+            addSystemMessage('Tombol kembali diklik');
+        });
+        
+        searchButton.addEventListener('click', () => {
+            addSystemMessage('Fitur pencarian belum tersedia');
+        });
+        
+        emojiButton.addEventListener('click', () => {
+            addSystemMessage('Fitur emoji belum tersedia');
+        });
+        
+        attachButton.addEventListener('click', () => {
+            addSystemMessage('Fitur lampiran belum tersedia');
+        });
+        
+        copyLinkButton.addEventListener('click', () => {
+            if (connectionData) {
+                navigator.clipboard.writeText(JSON.stringify(connectionData))
+                    .then(() => {
+                        addSystemMessage('Link koneksi disalin ke clipboard');
+                        qrModal.style.display = 'none';
+                    })
+                    .catch(err => {
+                        console.error('Gagal menyalin:', err);
+                    });
+            }
+        });
+        
+        scanButton.addEventListener('click', () => {
+            qrModal.style.display = 'none';
+            const remoteData = prompt('Masukkan data koneksi dari QR Code:');
+            if (remoteData) {
+                try {
+                    const data = JSON.parse(remoteData);
+                    remotePeerId = data.peerId;
+                    document.getElementById('info-remote-peer').textContent = remotePeerId;
+                    initializeConnection(false).then(async () => {
+                        await peerConnection.setRemoteDescription(data.sdp);
+                        data.candidates.forEach(candidate => {
+                            peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                        });
+                    });
+                } catch (error) {
+                    console.error('Error parsing connection data:', error);
+                    updateConnectionStatus('Error: Data tidak valid', true);
+                }
+            }
+        });
+        
+        closeInfoButton.addEventListener('click', () => {
+            infoModal.style.display = 'none';
+        });
+        
+        newConnectionButton.addEventListener('click', () => {
+            infoModal.style.display = 'none';
+            initializeConnection(true);
+            addSystemMessage('Membuat koneksi baru. Silakan scan QR code di perangkat lain.');
+        });
+        
+        sendButton.addEventListener('click', sendMessage);
+        
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Tampilkan peer ID lokal
+        updateConnectionStatus('Menunggu koneksi...');
+        peerIdDisplay.textContent = `ID Anda: ${localPeerId.substring(0, 8)}`;
+        document.getElementById('info-peer-id').textContent = localPeerId;
+        profilePic.textContent = localPeerId.substring(0, 2).toUpperCase();
+    </script>
+</body>
+</html>
