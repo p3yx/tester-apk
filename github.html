@@ -4,6 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GitHub Manager Pro</title>
+    <title>GitHub Manager Pro</title>
+  <!-- Include Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-okaidia.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-php.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-markdown.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-c.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-cpp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-ruby.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-go.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-sql.min.js"></script>
+  
   <style>
     :root {
       --primary: #00e6b8;
@@ -194,6 +212,76 @@
       animation: modalFadeIn 0.3s;
     }
     
+    #editBox {
+      display: none;
+      height: 500px; /* Larger editor */
+      position: relative;
+    }
+    
+    #fileContent {
+      width: 100%;
+      height: 100%;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--editor-bg);
+      color: var(--editor-text);
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      tab-size: 4;
+      resize: none;
+      white-space: pre;
+      overflow: auto;
+    }
+    
+    /* Syntax highlighted preview */
+    #filePreview {
+      height: 500px;
+      overflow-y: auto;
+      background: var(--editor-bg);
+      border-radius: 6px;
+      padding: 0;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    
+    #filePreview pre {
+      margin: 0;
+      padding: 15px;
+      background: transparent !important;
+    }
+    
+    #filePreview code {
+      font-family: 'Fira Code', 'Consolas', monospace !important;
+      font-size: 14px !important;
+      line-height: 1.5 !important;
+    }
+    
+    /* Editor line numbers */
+    .editor-container {
+      display: flex;
+      height: 100%;
+    }
+    
+    .code-editor {
+      flex: 1;
+      overflow: auto;
+    }
+    
+    /* File type indicator */
+    .file-type {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      background: var(--primary-dark);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      z-index: 2;
+    }
+    
     @keyframes modalFadeIn {
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -228,20 +316,59 @@
       color: #aaa;
       font-size: 14px;
     }
+    
+    .header-container {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--primary);
+    }
+    
+    .header-container h1 {
+      margin-bottom: 5px;
+    }
+    
+    .header-container p {
+      color: var(--primary-dark);
+      margin-top: 0;
+    }
+    
+    #fileOperationsPanel {
+      display: none; /* Hidden by default */
+      grid-column: 1 / -1; /* Span all columns */
+    }
+    
+    .panel-visible {
+      display: block !important;
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
-  <h1>GitHub Manager Pro</h1>
-  <p>Kelola repository GitHub Anda dengan mudah</p>
+  <div class="header-container">
+    <h1>GitHub Manager Pro</h1>
+    <p>Kelola repository GitHub Anda dengan mudah</p>
+  </div>
   
-  <div class="container">
+    <div class="container">
     <!-- Panel Auth & Repo -->
     <div class="panel">
       <h2>Authentication</h2>
       <label for="token">GitHub Token:</label>
-      <input type="password" id="token" placeholder="Masukkan token GitHub">
+      <input type="password" id="token" placeholder="Masukkan token GitHub (perlu repo access)">
       <button id="authBtn">Authenticate</button>
+      
       <div id="repoSelector" style="display: none; margin-top: 15px;">
+        <div class="btn-group">
+          <button onclick="loadRepositories()">Refresh Repositories</button>
+          <button onclick="openCreateRepoModal()">Create New</button>
+        </div>
+        
         <label for="repos">Repository:</label>
         <select id="repos"></select>
         <label for="branches">Branch:</label>
@@ -328,6 +455,69 @@
     </div>
   </div>
   
+    <!-- Modal untuk create repository -->
+  <div id="createRepoModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeCreateRepoModal()" style="float: right; cursor: pointer; font-size: 24px;">&times;</span>
+      <h2>Create New Repository</h2>
+      
+      <label for="newRepoName">Repository Name:</label>
+      <input type="text" id="newRepoName" placeholder="nama-repository">
+      <small>Hanya huruf, angka, dan tanda hubung (-)</small>
+      
+      <label for="repoDescription">Description (optional):</label>
+      <input type="text" id="repoDescription" placeholder="Deskripsi repository">
+      
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="repoVisibility" value="public" checked> Public
+          <small>Semua orang bisa melihat repository ini</small>
+        </label>
+        <label>
+          <input type="radio" name="repoVisibility" value="private"> Private
+          <small>Hanya Anda dan orang yang Anda beri akses yang bisa melihat</small>
+        </label>
+      </div>
+      
+      <label>
+        <input type="checkbox" id="addReadme" checked> Initialize with README
+      </label>
+      <small>Membuat file README.md pertama</small>
+      
+      <label>
+        <input type="checkbox" id="addGitignore"> Add .gitignore
+      </label>
+      <select id="gitignoreTemplate" style="display: none;">
+        <option value="Node">Node.js</option>
+        <option value="Python">Python</option>
+        <option value="Java">Java</option>
+        <option value="Android">Android</option>
+        <option value="Angular">Angular</option>
+        <option value="React">React</option>
+        <option value="Windows">Windows</option>
+        <option value="VisualStudio">VisualStudio</option>
+      </select>
+      
+      <label>
+        <input type="checkbox" id="addLicense"> Add license
+      </label>
+      <select id="licenseTemplate" style="display: none;">
+        <option value="mit">MIT License</option>
+        <option value="apache-2.0">Apache License 2.0</option>
+        <option value="gpl-3.0">GNU General Public License v3.0</option>
+        <option value="agpl-3.0">GNU Affero General Public License v3.0</option>
+        <option value="lgpl-3.0">GNU Lesser General Public License v3.0</option>
+        <option value="mpl-2.0">Mozilla Public License 2.0</option>
+        <option value="bsd-2-clause">BSD 2-Clause "Simplified" License</option>
+        <option value="bsd-3-clause">BSD 3-Clause "New" or "Revised" License</option>
+        <option value="epl-2.0">Eclipse Public License 2.0</option>
+        <option value="unlicense">The Unlicense</option>
+      </select>
+      
+      <button onclick="createNewRepository()">Create Repository</button>
+    </div>
+  </div>
+  
     <footer>
     &copy; <span id="currentYear"></span> PeyxDev. All rights reserved.
   </footer>
@@ -353,6 +543,14 @@
         authenticate();
       }
       
+      document.getElementById('addGitignore').addEventListener('change', function() {
+        document.getElementById('gitignoreTemplate').style.display = this.checked ? 'block' : 'none';
+      });
+      
+      document.getElementById('addLicense').addEventListener('change', function() {
+        document.getElementById('licenseTemplate').style.display = this.checked ? 'block' : 'none';
+      });
+      
       // Setup event listeners
       document.getElementById('authBtn').addEventListener('click', authenticate);
       document.getElementById('initRepo').addEventListener('click', initializeRepo);
@@ -375,6 +573,87 @@
       setTimeout(() => {
         toast.remove();
       }, 3000);
+    }
+    
+    // Fungsi untuk open create repo modal
+    function openCreateRepoModal() {
+      document.getElementById('createRepoModal').style.display = 'flex';
+    }
+    
+    // Fungsi untuk close create repo modal
+    function closeCreateRepoModal() {
+      document.getElementById('createRepoModal').style.display = 'none';
+    }
+    
+    // Fungsi untuk create new repository
+    async function createNewRepository() {
+      const name = document.getElementById('newRepoName').value.trim();
+      const description = document.getElementById('repoDescription').value;
+      const visibility = document.querySelector('input[name="repoVisibility"]:checked').value;
+      const addReadme = document.getElementById('addReadme').checked;
+      const addGitignore = document.getElementById('addGitignore').checked;
+      const gitignoreTemplate = addGitignore ? document.getElementById('gitignoreTemplate').value : null;
+      const addLicense = document.getElementById('addLicense').checked;
+      const licenseTemplate = addLicense ? document.getElementById('licenseTemplate').value : null;
+      
+      if (!name) {
+        showToast('Repository name is required', 'error');
+        return;
+      }
+      
+      // Validasi nama repository
+      if (!/^[a-z0-9\-]+$/.test(name)) {
+        showToast('Repository name can only contain lowercase letters, numbers, and hyphens', 'error');
+        return;
+      }
+      
+      try {
+        showLoading(true);
+        
+        const response = await fetch(`${GITHUB_API}/user/repos`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `token ${authToken}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: name,
+            description: description,
+            private: visibility === 'private',
+            auto_init: addReadme,
+            gitignore_template: gitignoreTemplate,
+            license_template: licenseTemplate
+          })
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to create repository');
+        }
+        
+        const repoData = await response.json();
+        showToast(`Repository ${repoData.full_name} created successfully`);
+        closeCreateRepoModal();
+        
+        // Refresh repository list
+        await loadRepositories();
+        
+        // Select the newly created repo
+        const reposSelect = document.getElementById('repos');
+        for (let i = 0; i < reposSelect.options.length; i++) {
+          if (reposSelect.options[i].value === repoData.full_name) {
+            reposSelect.selectedIndex = i;
+            reposSelect.dispatchEvent(new Event('change'));
+            break;
+          }
+        }
+      } catch (error) {
+        showToast(`Error creating repository: ${error.message}`, 'error');
+        console.error('Create repo error:', error);
+      } finally {
+        showLoading(false);
+      }
     }
     
     // Fungsi untuk menampilkan loading
